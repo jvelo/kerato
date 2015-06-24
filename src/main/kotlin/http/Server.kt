@@ -57,22 +57,16 @@ class Server() {
                     routeMatcher.matches(request, it)
                 }
 
-                fun execute(exchange: Exchange, route: Route): Exchange {
-                    val r = when (route) {
-                        is RequestResponseLambdaRoute -> Exchange(exchange.request, route.handler(exchange.request, exchange.response))
-                        else -> exchange
-                    }
-
-                    return r
-                }
-
-                val consumedExchanged = matchingRoutes.fold(Exchange(request, initialResponse), ::execute)
+                val consumedExchanged = matchingRoutes.fold(Exchange(request, initialResponse), {
+                    exchange, route -> route.apply(exchange)
+                })
 
                 grizzlyResponse.setStatus(consumedExchanged.response.status)
                 consumedExchanged.response.headers.forEach { entry ->
                     grizzlyResponse.addHeader(entry.getKey(), entry.getValue())
                 }
                 grizzlyResponse.getWriter().write(consumedExchanged.response.body.toString());
+                grizzlyResponse.addHeader("Content-Type", "text/plain; charset=UTF-8")
             }
         }, "/");
     }
