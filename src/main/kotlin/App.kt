@@ -17,11 +17,13 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.MetricRegistry.name
 import http.Server
 import http.Status
+import http.ok
+import http.response
 
 
-class App {
+object app {
 
-    private var httpServer: Server? = null;
+    private val server: Server = Server()
 
     private val logger = LoggerFactory.getLogger(::main.javaClass);
 
@@ -30,17 +32,19 @@ class App {
     fun start(): Unit {
         Runtime.getRuntime().addShutdownHook(Thread("shutdown"))
 
-        val start = metrics.timer(name(javaClass<App>(), "server"))
+        val start = metrics.timer(name(javaClass<app>(), "server"))
         val context = start.time()
 
         try {
-            httpServer = Server({ request, response ->
-                response.with {
-                    status(Status.NOT_FOUND)
-                    header("X-Naze-Cool" to "Path: ${request.path}")
+            server.configure {
+                routes {
+                    get("/foo", { request, response -> response {
+                        status(Status.OK)
+                        body("Yes : ${request.path}")
+                    }})
                 }
-            })
-            httpServer?.start()
+            }
+            server.start()
             val time = context.stop()
             logger.info("Server started in {} ms", TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS))
             logger.info("CTRL^C to exit..")
@@ -54,7 +58,6 @@ class App {
 }
 
 fun main(args: Array<String>) {
-    val server = App();
-    server.start();
+    app.start();
 }
 
