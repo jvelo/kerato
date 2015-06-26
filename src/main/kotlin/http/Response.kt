@@ -57,34 +57,41 @@ class ResponseBuilder() {
 
     private var copied = false
 
-    fun status(status: Status) {
+    fun status(status: Status): ResponseBuilder {
         this.status = status.code
+        return this
     }
 
-    fun status(status: Int) {
+    fun status(status: Int): ResponseBuilder {
         this.status = status
+        return this
     }
 
-    fun body(body: Any) {
+    fun body(body: Any): ResponseBuilder {
         this.body = body
+        return this
     }
 
-    fun header(name: String, value: String) {
+    fun header(name: String, value: String): ResponseBuilder {
         this.headers.putAll(Pair(name, value))
+        return this
     }
 
-    fun header(header: Pair<String, String>) {
+    fun header(header: Pair<String, String>): ResponseBuilder {
         this.headers.put(header.first, header.second)
+        return this
     }
 
-    fun headers(vararg headers: Pair<String, String>) {
+    fun headers(vararg headers: Pair<String, String>): ResponseBuilder {
         for (header in headers) {
             this.header(header)
         }
+        return this
     }
 
-    fun halt() {
+    fun halt(): ResponseBuilder {
         halted = true
+        return this
     }
 
     fun build(): Response {

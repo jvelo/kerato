@@ -44,7 +44,7 @@ object app {
                     }})
                 }
             }
-            server.build().start()
+            server.start()
             val time = context.stop()
             logger.info("Server started in {} ms", TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS))
             logger.info("CTRL^C to exit..")

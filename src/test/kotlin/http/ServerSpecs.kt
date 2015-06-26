@@ -17,10 +17,14 @@ import java.util.*
  */
 class ServerSpecs : Spek() {
 
+    fun randomPort(): Int {
+        return 1000 + Random().nextInt(8999)
+    }
+
     init {
         given("a server with a single route") {
             val server = Server()
-            val port = 1000 + Random().nextInt(8999)
+            val port = randomPort()
             server.configure {
                 port(port)
                 routes {
@@ -31,7 +35,7 @@ class ServerSpecs : Spek() {
                     })
                 }
             }
-            server.build().start()
+            server.start()
 
             on("hitting that route") {
                 it("should have the response defined in the route") {
@@ -48,7 +52,7 @@ class ServerSpecs : Spek() {
 
         given("a server with several routes matching the same path returning copied response") {
             val server = Server()
-            val port = 1000 + Random().nextInt(8999)
+            val port = randomPort()
             server.configure {
                 port(port)
                 routes {
@@ -66,7 +70,7 @@ class ServerSpecs : Spek() {
                     })
                 }
             }
-            server.build().start()
+            server.start()
 
             on("hitting that route") {
                 it("should have both headers and the last matched body") {
@@ -81,7 +85,7 @@ class ServerSpecs : Spek() {
 
         given("a server with several routes matching the same path returning new responses") {
             val server = Server()
-            val port = 1000 + Random().nextInt(8999)
+            val port = randomPort()
             server.configure {
                 port(port)
                 routes {
@@ -99,7 +103,7 @@ class ServerSpecs : Spek() {
                     })
                 }
             }
-            server.build().start()
+            server.start()
 
             on("hitting that route") {
                 it("should also have both headers and the last matched body") {

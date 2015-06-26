@@ -45,7 +45,12 @@ class Server() {
         this.port = port
     }
 
-    public fun build() : Server{
+    public fun start() {
+        this.build()
+        this.httpServer?.start()
+    }
+
+    private fun build() : Server{
         httpServer = HttpServer.createSimpleServer(".", this.port)
         httpServer?.getServerConfiguration()?.addHttpHandler(object : HttpHandler() {
             override fun service(grizzlyRequest: GrizzlyRequest, grizzlyResponse: GrizzlyResponse) {
@@ -74,12 +79,8 @@ class Server() {
                 grizzlyResponse.addHeader("Content-Type", "text/plain; charset=UTF-8")
             }
         }, "/")
-        logger.info("Server built with port {}", this.port)
+        logger.info("Server started with port {}", this.port)
         return this
-    }
-
-    public fun start() {
-        this.httpServer?.start()
     }
 
 }
