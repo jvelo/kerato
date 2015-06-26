@@ -7,8 +7,7 @@ import com.jayway.restassured.RestAssured.given
 import com.jayway.restassured.RestAssured.with
 import com.jayway.restassured.RestAssured.`when`
 import com.jayway.restassured.RestAssured.get
-import http.routes.Option
-import http.routes.Priority
+
 import org.hamcrest.Matchers.equalTo
 import java.util.*
 
