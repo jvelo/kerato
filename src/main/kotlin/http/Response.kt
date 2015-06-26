@@ -4,7 +4,7 @@ package http
  * @version $Id$
  */
 
-public data class Response(
+public open data class Response(
         val status: Int,
         val headers: Map<String, String>,
         val body: Any,
@@ -24,17 +24,38 @@ public data class Response(
     }
 }
 
+public data class CopiedResponse(status: Int, headers: Map<String, String>, body: Any, halted: Boolean) :
+        Response(status, headers, body, halted) {}
+
 class ResponseBuilder() {
 
     constructor(other: Response) : this() {
         this.status = other.status
         this.headers.putAll(other.headers)
+        this.body = other.body
+        this.halted = other.halted
+        this.copied = true
     }
 
-    private var status: Int = Status.OK.code
-    private val headers: MutableMap<String, String> = hashMapOf()
-    private var body: Any = ""
-    private var halted: Boolean = false
+    fun merge(other: Response): ResponseBuilder {
+        if (other.status !== defaultStatus) status = other.status
+        if (other.body !== defaultBody) body = other.body
+        if (other.halted !== defaultHalted) halted = other.halted
+        headers.putAll(other.headers)
+        return this;
+    }
+
+    private val defaultStatus: Int = Status.OK.code
+    private val defaultHeaders: MutableMap<String, String> = hashMapOf()
+    private val defaultBody: Any = ""
+    private val defaultHalted: Boolean = false
+
+    private var status: Int = defaultStatus
+    private val headers: MutableMap<String, String> = defaultHeaders
+    private var body: Any = defaultBody
+    private var halted: Boolean = defaultHalted
+
+    private var copied = false
 
     fun status(status: Status) {
         this.status = status.code
@@ -67,11 +88,21 @@ class ResponseBuilder() {
     }
 
     fun build(): Response {
-        return Response(
-                status = this.status,
-                headers = this.headers,
-                body = this.body
-        )
+        if (this.copied) {
+            return CopiedResponse(
+                    status = this.status,
+                    headers = this.headers,
+                    body = this.body,
+                    halted = this.halted
+            )
+        } else {
+            return Response(
+                    status = this.status,
+                    headers = this.headers,
+                    body = this.body,
+                    halted = this.halted
+            )
+        }
     }
 
 }

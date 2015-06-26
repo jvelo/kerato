@@ -20,13 +20,15 @@ import kotlin.reflect.KCallable
  */
 class Server() {
 
-    private val logger = LoggerFactory.getLogger(::Server.javaClass);
+    private val logger = LoggerFactory.getLogger(::Server.javaClass)
 
-    private val httpServer: HttpServer
+    private var httpServer: HttpServer? = null
 
     private val routes: MutableList<Route> = arrayListOf()
 
     private val routeMatcher = RouteMatcher()
+
+    private var port: Int = 8080
 
     public fun routes(fn: Routes.() -> Unit) {
         val routes = Routes()
@@ -36,13 +38,16 @@ class Server() {
 
     public inline fun configure(fn: Server.() -> Unit): Server {
         this.fn()
-        return this;
+        return this
     }
 
-    init {
-        logger.info("Starting server...")
-        httpServer = HttpServer.createSimpleServer()
-        httpServer.getServerConfiguration().addHttpHandler(object : HttpHandler() {
+    public fun port(port: Int) {
+        this.port = port
+    }
+
+    public fun build() : Server{
+        httpServer = HttpServer.createSimpleServer(".", this.port)
+        httpServer?.getServerConfiguration()?.addHttpHandler(object : HttpHandler() {
             override fun service(grizzlyRequest: GrizzlyRequest, grizzlyResponse: GrizzlyResponse) {
 
                 val request = request {
@@ -63,15 +68,18 @@ class Server() {
 
                 grizzlyResponse.setStatus(consumedExchanged.response.status)
                 consumedExchanged.response.headers.forEach { entry ->
-                    grizzlyResponse.addHeader(entry.getKey(), entry.getValue())
+                    grizzlyResponse.addHeader(entry.key, entry.value)
                 }
-                grizzlyResponse.getWriter().write(consumedExchanged.response.body.toString());
+                grizzlyResponse.getWriter().write(consumedExchanged.response.body.toString())
                 grizzlyResponse.addHeader("Content-Type", "text/plain; charset=UTF-8")
             }
-        }, "/");
+        }, "/")
+        logger.info("Server built with port {}", this.port)
+        return this
     }
 
     public fun start() {
-        this.httpServer.start()
+        this.httpServer?.start()
     }
+
 }
