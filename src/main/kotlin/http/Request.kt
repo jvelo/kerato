@@ -3,10 +3,16 @@ package http
 /**
  * @version $Id$
  */
-public data class Request(
-    val path: String,
+
+public interface Request {
+    val path: String
     val method: Method
-)
+}
+
+public data class BaseRequest(
+        override val path: String,
+        override val method: Method
+) : Request
 
 class RequestBuilder() {
 
@@ -22,7 +28,7 @@ class RequestBuilder() {
     }
 
     fun build(): Request {
-        return Request(
+        return BaseRequest(
                 path = this.path,
                 method = this.method
         )

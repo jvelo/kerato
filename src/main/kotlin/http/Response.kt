@@ -4,19 +4,30 @@ package http
  * @version $Id$
  */
 
-public open data class Response(
-        val status: Int,
-        val headers: Map<String, String>,
-        val body: Any,
-        val halted: Boolean = false
-) {
-    inline fun with(fn: ResponseBuilder.() -> Unit): Response {
+public interface Response {
+    val status: Int
+    val headers: Map<String, String>
+    val body: Any
+    val halted: Boolean
+
+    fun with(fn: ResponseBuilder.() -> Unit): Response
+    fun halt(fn: ResponseBuilder.() -> Unit): Response
+}
+
+public open data class BaseResponse(
+        override val status: Int,
+        override val headers: Map<String, String>,
+        override val body: Any,
+        override val halted: Boolean = false
+) : Response {
+
+    override final inline fun with(fn: ResponseBuilder.() -> Unit): Response {
         val builder = ResponseBuilder(this)
         builder.fn()
         return builder.build()
     }
 
-    inline fun halt(fn: ResponseBuilder.() -> Unit): Response {
+    override final inline fun halt(fn: ResponseBuilder.() -> Unit): Response {
         val builder = ResponseBuilder(this)
         builder.fn()
         builder.halt()
@@ -25,7 +36,7 @@ public open data class Response(
 }
 
 public data class CopiedResponse(status: Int, headers: Map<String, String>, body: Any, halted: Boolean) :
-        Response(status, headers, body, halted) {}
+        BaseResponse(status, headers, body, halted) {}
 
 class ResponseBuilder() {
 
@@ -95,15 +106,14 @@ class ResponseBuilder() {
     }
 
     fun build(): Response {
-        if (this.copied) {
-            return CopiedResponse(
+        return when (this.copied) {
+            true -> CopiedResponse(
                     status = this.status,
                     headers = this.headers,
                     body = this.body,
                     halted = this.halted
             )
-        } else {
-            return Response(
+            else -> BaseResponse(
                     status = this.status,
                     headers = this.headers,
                     body = this.body,
