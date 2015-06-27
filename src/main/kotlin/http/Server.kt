@@ -68,7 +68,10 @@ class Server() {
                 }
 
                 val consumedExchanged = matchingRoutes.fold(Exchange(request, initialResponse), {
-                    exchange, route -> route.apply(exchange)
+                    exchange, route -> when (exchange.response.halted) {
+                        true -> exchange
+                        else -> route.apply(exchange)
+                    }
                 })
 
                 grizzlyResponse.setStatus(consumedExchanged.response.status)
