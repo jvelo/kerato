@@ -14,6 +14,18 @@ public interface Response {
     fun halt(fn: ResponseBuilder.() -> Unit): Response
 }
 
+public interface ResponseBuilder {
+    fun merge(other: Response): ResponseBuilder
+    fun status(status: Status): ResponseBuilder
+    fun status(status: Int): ResponseBuilder
+    fun body(body: Any): ResponseBuilder
+    fun header(name: String, value: String): ResponseBuilder
+    fun header(header: Pair<String, String>): ResponseBuilder
+    fun headers(vararg headers: Pair<String, String>): ResponseBuilder
+    fun halt(): ResponseBuilder
+    fun build(): Response
+}
+
 public open data class BaseResponse(
         override val status: Int,
         override val headers: Map<String, String>,
@@ -22,13 +34,13 @@ public open data class BaseResponse(
 ) : Response {
 
     override final inline fun with(fn: ResponseBuilder.() -> Unit): Response {
-        val builder = ResponseBuilder(this)
+        val builder = DefaultResponseBuilder(this)
         builder.fn()
         return builder.build()
     }
 
     override final inline fun halt(fn: ResponseBuilder.() -> Unit): Response {
-        val builder = ResponseBuilder(this)
+        val builder = DefaultResponseBuilder(this)
         builder.fn()
         builder.halt()
         return builder.build()
@@ -38,7 +50,7 @@ public open data class BaseResponse(
 public data class CopiedResponse(status: Int, headers: Map<String, String>, body: Any, halted: Boolean) :
         BaseResponse(status, headers, body, halted) {}
 
-class ResponseBuilder() {
+class DefaultResponseBuilder() : ResponseBuilder {
 
     constructor(other: Response) : this() {
         this.status = other.status
@@ -48,7 +60,7 @@ class ResponseBuilder() {
         this.copied = true
     }
 
-    fun merge(other: Response): ResponseBuilder {
+    override fun merge(other: Response): ResponseBuilder {
         if (other.status !== defaultStatus) status = other.status
         if (other.body !== defaultBody) body = other.body
         if (other.halted !== defaultHalted) halted = other.halted
@@ -68,44 +80,44 @@ class ResponseBuilder() {
 
     private var copied = false
 
-    fun status(status: Status): ResponseBuilder {
+    override fun status(status: Status): ResponseBuilder {
         this.status = status.code
         return this
     }
 
-    fun status(status: Int): ResponseBuilder {
+    override fun status(status: Int): ResponseBuilder {
         this.status = status
         return this
     }
 
-    fun body(body: Any): ResponseBuilder {
+    override fun body(body: Any): ResponseBuilder {
         this.body = body
         return this
     }
 
-    fun header(name: String, value: String): ResponseBuilder {
+    override fun header(name: String, value: String): ResponseBuilder {
         this.headers.putAll(Pair(name, value))
         return this
     }
 
-    fun header(header: Pair<String, String>): ResponseBuilder {
+    override fun header(header: Pair<String, String>): ResponseBuilder {
         this.headers.put(header.first, header.second)
         return this
     }
 
-    fun headers(vararg headers: Pair<String, String>): ResponseBuilder {
+    override fun headers(vararg headers: Pair<String, String>): ResponseBuilder {
         for (header in headers) {
             this.header(header)
         }
         return this
     }
 
-    fun halt(): ResponseBuilder {
+    override fun halt(): ResponseBuilder {
         halted = true
         return this
     }
 
-    fun build(): Response {
+    override fun build(): Response {
         return when (this.copied) {
             true -> CopiedResponse(
                     status = this.status,
@@ -125,7 +137,7 @@ class ResponseBuilder() {
 }
 
 inline fun response(fn: ResponseBuilder.() -> Unit): Response {
-    val builder = ResponseBuilder()
+    val builder = DefaultResponseBuilder()
     builder.fn()
     return builder.build()
 }
