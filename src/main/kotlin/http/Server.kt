@@ -6,11 +6,13 @@ import http.routes.RouteMatcher
 import http.routes.Routes
 import org.glassfish.grizzly.http.server.HttpHandler
 import org.glassfish.grizzly.http.server.HttpServer
+import org.json.JSONObject
 import org.glassfish.grizzly.http.server.Request as GrizzlyRequest
 import org.glassfish.grizzly.http.server.Response as GrizzlyResponse
 import org.slf4j.LoggerFactory
 import java.io.Writer
 import java.text.SimpleDateFormat
+import java.util
 import java.util.*
 import kotlin.reflect.KCallable
 
@@ -78,8 +80,33 @@ class Server() {
                 consumedExchanged.response.headers.forEach { entry ->
                     grizzlyResponse.addHeader(entry.key, entry.value)
                 }
-                grizzlyResponse.getWriter().write(consumedExchanged.response.body.toString())
-                grizzlyResponse.addHeader("Content-Type", "text/plain; charset=UTF-8")
+
+                fun mapToJsonObject(map: Map<*, *>) : JSONObject {
+                    val javaMap = java.util.HashMap<java.lang.String, Object>()
+                    map.keySet().forEach {
+                        javaMap.put(it as java.lang.String, map.get(it) as java.lang.Object)
+                    }
+                    return JSONObject(map as java.util.Map<String, Object>)
+                }
+
+                when (consumedExchanged.response.type()) {
+
+                    "application/json" -> {
+
+                        val payload: JSONObject = when (consumedExchanged.response.body) {
+                            is Map<*, *> -> mapToJsonObject(consumedExchanged.response.body as Map<*, *>)
+                            else -> JSONObject(consumedExchanged.response.body)
+                        }
+                        grizzlyResponse.getWriter().write(
+                                payload.toString()
+                        )
+                    }
+                    else -> {
+                        grizzlyResponse.getWriter().write(consumedExchanged.response.body.toString())
+                        grizzlyResponse.addHeader("Content-Type", "text/plain; charset=UTF-8")
+                    }
+                }
+
             }
         }, "/")
         logger.info("Server started with port {}", this.port)

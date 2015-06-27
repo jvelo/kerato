@@ -12,6 +12,8 @@ public interface Response {
 
     fun with(fn: ResponseBuilder.() -> Unit): Response
     fun halt(fn: ResponseBuilder.() -> Unit): Response
+
+    fun type(): String
 }
 
 public interface ResponseBuilder {
@@ -19,6 +21,7 @@ public interface ResponseBuilder {
     fun status(status: Status): ResponseBuilder
     fun status(status: Int): ResponseBuilder
     fun body(body: Any): ResponseBuilder
+    fun json(json: Any): ResponseBuilder
     fun header(name: String, value: String): ResponseBuilder
     fun header(header: Pair<String, String>): ResponseBuilder
     fun headers(vararg headers: Pair<String, String>): ResponseBuilder
@@ -44,6 +47,10 @@ public open data class BaseResponse(
         builder.fn()
         builder.halt()
         return builder.build()
+    }
+
+    override fun type() : String {
+        return this.headers.get("Content-Type") ?: "text/plain"
     }
 }
 
@@ -92,6 +99,12 @@ class DefaultResponseBuilder() : ResponseBuilder {
 
     override fun body(body: Any): ResponseBuilder {
         this.body = body
+        return this
+    }
+
+    override fun json(json: Any): ResponseBuilder {
+        body(json)
+        header("Content-Type", "application/json")
         return this
     }
 
