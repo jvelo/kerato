@@ -69,31 +69,31 @@ class Server() {
                     routeMatcher.matches(request, it)
                 }
 
-                val consumedExchanged = matchingRoutes.fold(Exchange(request, initialResponse), {
+                val exchange = matchingRoutes.fold(Exchange(request, initialResponse), {
                     exchange, route -> when (exchange.response.halted) {
                         true -> exchange
                         else -> route.apply(exchange)
                     }
                 })
 
-                grizzlyResponse.setStatus(consumedExchanged.response.status)
-                consumedExchanged.response.headers.forEach { entry ->
+                grizzlyResponse.setStatus(exchange.response.status)
+                exchange.response.headers.forEach { entry ->
                     grizzlyResponse.addHeader(entry.key, entry.value)
                 }
 
-                when (consumedExchanged.response.type()) {
+                when (exchange.response.type()) {
                     "application/json" -> {
-                        val payload: JSONObject = when (consumedExchanged.response.body) {
+                        val payload: JSONObject = when (exchange.response.body) {
                             // Assume maps are always maps of String, Any
-                            is Map<*, *> -> JSONObject(consumedExchanged.response.body as Map<String, Any>)
+                            is Map<*, *> -> JSONObject(exchange.response.body as Map<String, Any>)
 
-                            else -> JSONObject(consumedExchanged.response.body)
+                            else -> JSONObject(exchange.response.body)
                         }
                         grizzlyResponse.getWriter().write(payload.toString())
                         grizzlyResponse.addHeader("Content-Type", "application/json; charset=UTF-8")
                     }
                     else -> {
-                        grizzlyResponse.getWriter().write(consumedExchanged.response.body.toString())
+                        grizzlyResponse.getWriter().write(exchange.response.body.toString())
                         grizzlyResponse.addHeader("Content-Type", "text/plain; charset=UTF-8")
                     }
                 }

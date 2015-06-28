@@ -21,6 +21,7 @@ public interface ResponseBuilder {
     fun status(status: Status): ResponseBuilder
     fun status(status: Int): ResponseBuilder
     fun body(body: Any): ResponseBuilder
+    fun json(vararg json: Pair<String, Any>) : ResponseBuilder
     fun json(json: Any): ResponseBuilder
     fun header(name: String, value: String): ResponseBuilder
     fun header(header: Pair<String, String>): ResponseBuilder
@@ -103,8 +104,16 @@ class DefaultResponseBuilder() : ResponseBuilder {
     }
 
     override fun json(json: Any): ResponseBuilder {
-        body(json)
+        body(when (json) {
+            is Pair<*, *> -> mapOf(json)
+            else -> json
+        })
         header("Content-Type", "application/json")
+        return this
+    }
+
+    override fun json(vararg json: Pair<String, Any>): ResponseBuilder {
+        this.json(mapOf(*json))
         return this
     }
 

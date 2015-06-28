@@ -25,6 +25,7 @@ class ServerSpecs : Spek() {
     }
 
     init {
+        /*
         given("a server with a single route") {
             val server = Server()
             val port = randomPort()
@@ -150,7 +151,7 @@ class ServerSpecs : Spek() {
                             .`when`().get("/foo")
                 }
             }
-        }
+        }*/
 
         // JSON ------------------------------------------------------------------------------------
 
@@ -173,6 +174,60 @@ class ServerSpecs : Spek() {
                 it("should have correct payload and content type") {
                     given().port(port)
                             .expect().body("hello", equalTo("world"))
+                            .expect().contentType(JSON)
+                            .`when`().get("/foo")
+                }
+            }
+        }
+
+        given("a server with a route that returns json with one property via vararg") {
+            val server = Server()
+            val port = randomPort()
+            server.configure {
+                port(port)
+                routes {
+                    get("/foo", { request, response ->
+                        response.with {
+                            json("hello" to "world")
+                        }
+                    })
+                }
+            }
+            server.start()
+
+            on("hitting that route") {
+                it("should have correct payload and content type") {
+                    given().port(port)
+                            .expect().body("hello", equalTo("world"))
+                            .expect().contentType(JSON)
+                            .`when`().get("/foo")
+                }
+            }
+        }
+
+        given("a server with a route that returns json with several property via vararg") {
+            val server = Server()
+            val port = randomPort()
+            server.configure {
+                port(port)
+                routes {
+                    get("/foo", { request, response ->
+                        response.with {
+                            json(
+                                "hello" to "world",
+                                "hallo" to "welt"
+                            )
+                        }
+                    })
+                }
+            }
+            server.start()
+
+            on("hitting that route") {
+                it("should have correct payload and content type") {
+                    given().port(port)
+                            .expect().body("hello", equalTo("world"))
+                            .expect().body("hallo", equalTo("welt"))
                             .expect().contentType(JSON)
                             .`when`().get("/foo")
                 }
