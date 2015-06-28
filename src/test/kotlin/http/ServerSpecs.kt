@@ -25,7 +25,6 @@ class ServerSpecs : Spek() {
     }
 
     init {
-        /*
         given("a server with a single route") {
             val server = Server()
             val port = randomPort()
@@ -151,7 +150,7 @@ class ServerSpecs : Spek() {
                             .`when`().get("/foo")
                 }
             }
-        }*/
+        }
 
         // JSON ------------------------------------------------------------------------------------
 
