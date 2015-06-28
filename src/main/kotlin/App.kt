@@ -40,7 +40,7 @@ object app {
                 routes {
                     get("/foo", { request, response -> response {
                         status(Status.OK)
-                        body("Yes : ${request.path}")
+                        json(mapOf("yolo" to "swag"))
                     }})
                 }
             }

@@ -7,6 +7,7 @@ import com.jayway.restassured.RestAssured.given
 import com.jayway.restassured.RestAssured.with
 import com.jayway.restassured.RestAssured.`when`
 import com.jayway.restassured.RestAssured.get
+import com.jayway.restassured.http.ContentType.JSON
 
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.`is`
@@ -146,6 +147,33 @@ class ServerSpecs : Spek() {
                             .expect().body(equalTo("Matched first"))
                             .expect().header("X-Match-First", "Yes")
                             .expect().header("X-Match-Second", `is`(nullValue()))
+                            .`when`().get("/foo")
+                }
+            }
+        }
+
+        // JSON ------------------------------------------------------------------------------------
+
+        given("a server with a route that returns json") {
+            val server = Server()
+            val port = randomPort()
+            server.configure {
+                port(port)
+                routes {
+                    get("/foo", { request, response ->
+                        response.with {
+                            json(mapOf("hello" to "world"))
+                        }
+                    })
+                }
+            }
+            server.start()
+
+            on("hitting that route") {
+                it("should have correct payload and content type") {
+                    given().port(port)
+                            .expect().body("hello", equalTo("world"))
+                            .expect().contentType(JSON)
                             .`when`().get("/foo")
                 }
             }
