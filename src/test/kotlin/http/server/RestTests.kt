@@ -1,7 +1,8 @@
-package http
+package http.server
 
 import com.jayway.restassured.RestAssured.given
 import com.jayway.restassured.specification.ResponseSpecification
+import http.Server
 import http.routes.Routes
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +42,7 @@ public open class RestTests {
         }
     }
 
-    public fun expect() : ResponseSpecification{
+    public fun expect() : ResponseSpecification {
         return given().port(port).expect()
     }
 }

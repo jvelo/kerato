@@ -1,6 +1,7 @@
-package http
+package http.server
 
 import com.jayway.restassured.http.ContentType.JSON
+import http.server.RestTests
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.nullValue
@@ -9,7 +10,7 @@ import org.junit.Test
 /**
  * @version $Id$
  */
-public class ServerTests : RestTests() {
+public class BasicTests : RestTests() {
 
     Test fun simple_test_with_one_route() {
         routes {
@@ -50,13 +51,13 @@ public class ServerTests : RestTests() {
     Test fun several_routes_returning_new_responses() {
         routes {
             get("/foo", { request, response ->
-                response {
+                http.response {
                     body("Matched first")
                     header("X-Match-First", "Yes")
                 }
             })
             get("/foo", { request, response ->
-                response {
+                http.response {
                     body("Matched second")
                     header("X-Match-Second", "Also yes")
                 }
@@ -93,53 +94,4 @@ public class ServerTests : RestTests() {
         .`when`()
             .get("/foo")
     }
-
-    // Json
-
-    Test fun a_route_returning_json() {
-        routes {
-            get("/foo", { request, response ->
-                response.with {
-                    json(mapOf("hello" to "world"))
-                }
-            })
-        }
-
-        expect()
-            .body("hello", equalTo("world"))
-            .contentType(JSON)
-        .`when`()
-            .get("/foo")
-    }
-
-    Test fun a_route_returning_json_via_vararg() {
-        routes {
-            get("/foo", { request, response ->
-                response.with {
-                    json("hello" to "world")
-                }
-            })
-            get("/bar", { request, response ->
-                response.with {
-                    json(
-                        "hello" to "world",
-                        "hallo" to "welt"
-                    )
-                }
-            })
-        }
-        expect()
-            .body("hello", equalTo("world"))
-            .contentType(JSON)
-        .`when`()
-            .get("/foo")
-
-        expect()
-            .body("hello", equalTo("world"))
-            .body("hallo", equalTo("welt"))
-            .contentType(JSON)
-        .`when`()
-            .get("/bar")
-    }
-    
 }
