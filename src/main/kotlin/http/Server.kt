@@ -65,9 +65,7 @@ class Server() {
                     status(Status.NOT_FOUND)
                 }
 
-                val matchingRoutes = routes.filter {
-                    routeMatcher.matches(request, it)
-                }
+                val matchingRoutes = routes.filter { it.matches(request) }
 
                 val exchange = matchingRoutes.fold(Exchange(request, initialResponse), {
                     exchange, route -> when (exchange.response.halted) {

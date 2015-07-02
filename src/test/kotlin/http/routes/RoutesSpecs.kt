@@ -16,7 +16,6 @@ class RoutesSpecs : Spek() {
             val routes = Routes()
 
             on("adding routes with the builder/fluent API") {
-
                 routes
                         .get("/something", { -> "Yes, something" })
                         .get("/other", { request, response ->
@@ -33,7 +32,6 @@ class RoutesSpecs : Spek() {
         }
 
         given("a route builder") {
-
             on("adding routes via the DSL API") {
 
                 val routes = routes {
@@ -46,6 +44,20 @@ class RoutesSpecs : Spek() {
                 }
             }
 
+            on("adding controller route as object instance") {
+                var controller = object {
+                    Get fun doGet() {
+                        ok()
+                    }
+                }
+                val routes = routes {
+                    at("/customer", controller)
+                }
+
+                it("should add the routes") {
+                    assertEquals(1, routes.all().size())
+                }
+            }
         }
     }
 }

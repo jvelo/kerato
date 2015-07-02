@@ -8,11 +8,12 @@ import kotlin.test.assertEquals
 
 /**
  * @version $Id$
+ *
+ * TODO merge with route specs
  */
 public class RouteMatcherSpecs : Spek() {
     init {
         given("a route matcher") {
-            val matcher = RouteMatcher()
 
             on("matching a route based on a static path") {
                 val request = request {
@@ -22,8 +23,8 @@ public class RouteMatcherSpecs : Spek() {
                 val barRoute = RequestResponseLambdaRoute(Method.GET, "/bar", { req, resp -> ok() })
 
                 it("should match the one with the same static path and not the others") {
-                    assertEquals(true, matcher.matches(request, fooRoute));
-                    assertEquals(false, matcher.matches(request, barRoute));
+                    assertEquals(true, fooRoute.matches(request));
+                    assertEquals(false, barRoute.matches(request));
                 }
             }
 
@@ -40,8 +41,8 @@ public class RouteMatcherSpecs : Spek() {
                 val route = RequestResponseLambdaRoute(Method.POST, "/", { req, resp -> ok() })
 
                 it("should match only when the method matches") {
-                    assertEquals(true, matcher.matches(postRequest, route));
-                    assertEquals(false, matcher.matches(getRequest, route));
+                    assertEquals(true, route.matches(postRequest));
+                    assertEquals(false, route.matches(getRequest));
                 }
             }
 
@@ -56,12 +57,34 @@ public class RouteMatcherSpecs : Spek() {
                 val routeWithoutPostRequest = RequestResponseLambdaRoute(arrayOf(Method.OPTIONS), "/", { req, resp -> ok() })
 
                 it("should match only when the method matches") {
-                    assertEquals(true, matcher.matches(postRequest, routeWithOneEntryArray));
-                    assertEquals(true, matcher.matches(postRequest, routeWithOneTwoArray));
-                    assertEquals(false, matcher.matches(postRequest, routeWithoutPostRequest));
+                    assertEquals(true, routeWithOneEntryArray.matches(postRequest));
+                    assertEquals(true, routeWithOneTwoArray.matches(postRequest));
+                    assertEquals(false, routeWithoutPostRequest.matches(postRequest));
                 }
             }
 
+            on("adding controller route as object instance") {
+                public class Controller {
+                    public Get fun doGet() {
+                        ok()
+                    }
+                }
+                val route = ControllerRoute(Method.values(), "/customer", Controller())
+
+                val getRequest = request {
+                    path("/")
+                    method(Method.GET)
+                }
+                val postRequest = request {
+                    path("/")
+                    method(Method.POST)
+                }
+
+                it("should match the route with a get method only") {
+                    assertEquals(true, route.matches(getRequest));
+                    assertEquals(false, route.matches(postRequest));
+                }
+            }
         }
     }
 }

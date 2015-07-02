@@ -10,6 +10,13 @@ public class RequestResponseLambdaRoute(
         uri: String,
         val handler: (request: Request, response: Response) -> Response) : Route(methods, uri) {
 
+    override fun matches(request: Request): Boolean {
+        val methodMatches = this.methods.contains(request.method)
+        val pathMatches = this.uri.equals(request.path)
+
+        return methodMatches && pathMatches
+    }
+
     constructor(method: Method, uri: String, handler: (request: Request, response: Response) -> Response) :
     this(arrayOf(method), uri, handler)
 

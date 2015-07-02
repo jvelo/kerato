@@ -16,6 +16,11 @@ public class Routes {
         return this.routes
     }
 
+    fun at(pattern: String, controller: Any) : Routes {
+        routes.add(ControllerRoute(Method.values(), pattern, controller))
+        return this
+    }
+
     fun get(pattern: String, controller: Any) : Routes {
         return this.add(pattern, controller)
     }
