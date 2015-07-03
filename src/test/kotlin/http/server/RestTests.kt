@@ -1,6 +1,7 @@
 package http.server
 
-import com.jayway.restassured.RestAssured.given
+import com.jayway.restassured.specification.RequestSpecification
+import com.jayway.restassured.RestAssured.given as stated
 import com.jayway.restassured.specification.ResponseSpecification
 import http.Server
 import http.routes.Routes
@@ -43,6 +44,10 @@ public open class RestTests {
     }
 
     public fun expect() : ResponseSpecification {
-        return given().port(port).expect()
+        return stated().port(port).expect()
+    }
+
+    public fun given() : RequestSpecification {
+        return stated().port(port)
     }
 }

@@ -1,9 +1,6 @@
 package http.routes
 
-import http.Exchange
-import http.Method
-import http.Request
-import http.Response
+import http.*
 import java.lang.reflect.Method as JavaMethod
 
 /**
@@ -40,8 +37,21 @@ public class ControllerRoute(
     }
 
     override fun apply(exchange: Exchange): Exchange {
-        System.out.println("applying route ${this}")
-        return exchange
-    }
+        val method = funs.firstOrNull { exchange.request.method == it.first } ?: return exchange
 
+        val result = method.second.invoke(handler)
+        val response : Response = when (result) {
+            is CopiedResponse -> result
+            is BaseResponse -> response {
+                merge(exchange.response)
+                merge(result)
+            }
+            is Unit -> exchange.response
+            else -> exchange.response.with {
+                body(result)
+            }
+        }
+
+        return Exchange(exchange.request, response)
+    }
 }
