@@ -21,10 +21,6 @@ public class Routes {
         return this
     }
 
-    fun get(pattern: String, controller: Any) : Routes {
-        return this.add(pattern, controller)
-    }
-
     fun get(pattern: String, handler: () -> Any) : Routes {
         return this.add(Method.GET, pattern, handler)
     }
@@ -38,15 +34,6 @@ public class Routes {
     }
 
     // ---------------------------------------------------------------------------------------------
-
-    /**
-     * Object controller
-     */
-    private fun add(pattern: String, controller: Any): Routes {
-        // routes.add(Route(Method.values(), pattern, controller))
-        routes.add(RequestResponseLambdaRoute(Method.values(), pattern, { (req, resp) -> ok() }))
-        return this
-    }
 
     /**
      * Handler just returns a payload object (200 OK assumed)
