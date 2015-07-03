@@ -23,13 +23,13 @@ public class ControllerTests : RestTests() {
                 }
             })
         }
-        given()
-                .config(newConfig().redirect(redirectConfig().followRedirects(false)))
-        .expect()
-                .statusCode(303)
-                .header("Location", "/i-am-not-there")
-        .`when`()
-                .get("/are-you-there")
+        given().
+                config(newConfig().redirect(redirectConfig().followRedirects(false))).
+        expect().
+                statusCode(303).
+                header("Location", "/i-am-not-there").
+        `when`().
+                get("/are-you-there")
 
     }
 }
