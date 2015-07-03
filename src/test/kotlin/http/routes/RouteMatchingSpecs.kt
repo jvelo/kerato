@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
  *
  * TODO merge with route specs
  */
-public class RouteMatcherSpecs : Spek() {
+public class RouteMatchingSpecs : Spek() {
     init {
         given("a route matcher") {
 

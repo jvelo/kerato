@@ -28,8 +28,6 @@ class Server() {
 
     private val routes: MutableList<Route> = arrayListOf()
 
-    private val routeMatcher = RouteMatcher()
-
     private var port: Int = 8080
 
     public fun routes(fn: Routes.() -> Unit) {
