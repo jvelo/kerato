@@ -18,14 +18,15 @@ public class ControllerRoute(
     val funs : List<Pair<Method, JavaMethod>>
 
     init {
-        funs = handler.javaClass.getMethods().filter {
-            it.getAnnotations().any() {
-                val get = it as? Get
-                get != null
-            }
-        }.map {
-            Pair(Method.GET, it)
-        }
+        funs = handler.javaClass.getMethods().map { method ->
+            method.getAnnotations().map {
+                when (it) {
+                    is Get -> Pair(Method.GET, method)
+                    is Post -> Pair(Method.POST, method)
+                    else -> null
+                }
+            }.firstOrNull()
+        }.filterNotNull()
     }
 
     override fun matches(request: Request): Boolean {

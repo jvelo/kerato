@@ -64,12 +64,17 @@ public class RouteMatcherSpecs : Spek() {
             }
 
             on("adding controller route as object instance") {
-                public class Controller {
+                val getRoute = ControllerRoute(Method.values(), "/customer", object {
                     public Get fun doGet() {
                         ok()
                     }
-                }
-                val route = ControllerRoute(Method.values(), "/customer", Controller())
+                })
+
+                val postRoute = ControllerRoute(Method.values(), "/customer", object {
+                    public Post fun doGet() {
+                        ok()
+                    }
+                })
 
                 val getRequest = request {
                     path("/")
@@ -80,9 +85,12 @@ public class RouteMatcherSpecs : Spek() {
                     method(Method.POST)
                 }
 
-                it("should match the route with a get method only") {
-                    assertEquals(true, route.matches(getRequest));
-                    assertEquals(false, route.matches(postRequest));
+                it("should match the route with the matching method only") {
+                    assertEquals(true, getRoute.matches(getRequest));
+                    assertEquals(false, getRoute.matches(postRequest));
+
+                    assertEquals(true, postRoute.matches(postRequest));
+                    assertEquals(false, postRoute.matches(getRequest));
                 }
             }
         }
