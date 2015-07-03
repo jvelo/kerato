@@ -46,7 +46,7 @@ class RoutesSpecs : Spek() {
 
             on("adding controller route as object instance") {
                 var controller = object {
-                    Get fun doGet() {
+                    get fun doGet() {
                         ok()
                     }
                 }

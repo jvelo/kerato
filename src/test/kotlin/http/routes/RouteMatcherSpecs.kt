@@ -65,13 +65,13 @@ public class RouteMatcherSpecs : Spek() {
 
             on("adding controller route as object instance") {
                 val getRoute = ControllerRoute(Method.values(), "/customer", object {
-                    public Get fun doGet() {
+                    public get fun doGet() {
                         ok()
                     }
                 })
 
                 val postRoute = ControllerRoute(Method.values(), "/customer", object {
-                    public Post fun doGet() {
+                    public post fun doGet() {
                         ok()
                     }
                 })

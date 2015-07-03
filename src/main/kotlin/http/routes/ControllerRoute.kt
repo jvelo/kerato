@@ -21,8 +21,12 @@ public class ControllerRoute(
         funs = handler.javaClass.getMethods().map { method ->
             method.getAnnotations().map {
                 when (it) {
-                    is Get -> Pair(Method.GET, method)
-                    is Post -> Pair(Method.POST, method)
+                    is get -> Pair(Method.GET, method)
+                    is post -> Pair(Method.POST, method)
+                    is delete -> Pair(Method.DELETE, method)
+                    is put -> Pair(Method.PUT, method)
+                    is options -> Pair(Method.OPTIONS, method)
+                    is patch -> Pair(Method.PATCH, method)
                     else -> null
                 }
             }.firstOrNull()
