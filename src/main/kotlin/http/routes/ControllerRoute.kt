@@ -31,7 +31,7 @@ public class ControllerRoute(
     }
 
     override fun matches(request: Request): Boolean {
-        return this.uri.equals(request.path) && funs.any {
+        return this.path.equals(request.path) && funs.any {
             request.method == it.first
         }
     }

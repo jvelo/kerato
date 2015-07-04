@@ -12,7 +12,7 @@ public class RequestResponseLambdaRoute(
 
     override fun matches(request: Request): Boolean {
         val methodMatches = this.methods.contains(request.method)
-        val pathMatches = this.uri.equals(request.path)
+        val pathMatches = this.path.equals(request.path)
 
         return methodMatches && pathMatches
     }

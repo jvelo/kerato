@@ -3,6 +3,7 @@ package http.routes
 import http.*
 import org.jetbrains.spek.api.Spek
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.expect
 
 /**
@@ -12,17 +13,16 @@ class RoutesSpecs : Spek() {
 
     init {
         given("a route collection") {
-
             val routes = Routes()
 
             on("adding routes with the builder/fluent API") {
                 routes
-                        .get("/something", { -> "Yes, something" })
+                        .get("/something", { request, response -> response { body("Yes, something") }})
                         .get("/other", { request, response ->
                             ok()
                         })
-                        .get("/ping", { request -> ok() })
-                        .get("/foo/:name/", { -> seeOther("/other") })
+                        .get("/ping", { request, response -> ok() })
+                        .get("/foo/:name/", { request, response -> seeOther("/other") })
 
                 it("should add the routes") {
                     assertEquals(4, routes.all().size())
@@ -35,8 +35,8 @@ class RoutesSpecs : Spek() {
             on("adding routes via the DSL API") {
 
                 val routes = routes {
-                    get("/customer/:id", { request -> ok() })
-                    get("/customer/:id/balance", { request -> ok() })
+                    get("/customer/:id", { request, response -> ok() })
+                    get("/customer/:id/balance", { request, response -> ok() })
                 }
 
                 it("should add the routes") {
@@ -56,6 +56,22 @@ class RoutesSpecs : Spek() {
 
                 it("should add the routes") {
                     assertEquals(1, routes.all().size())
+                }
+            }
+
+            on("nesting routes definition in at") {
+                val routes = routes {
+                    at("/customer", {
+                        get("/:id", { request, response -> ok() })
+                        get("/:id/balance", { request, response -> ok() })
+                    })
+                }
+
+                it("should add the routes") {
+                    assertEquals(2, routes.all().size())
+                    assertNotNull(routes.all().firstOrNull {
+                        it.path == "/customer/:id"
+                    })
                 }
             }
         }

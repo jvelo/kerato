@@ -9,7 +9,7 @@ import http.Request
  */
 public abstract data class Route(
         val methods: Array<Method>,
-        val uri: String
+        val path: String
 ) {
     constructor(method: Method, uri: String) :
     this(arrayOf(method), uri)
