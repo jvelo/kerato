@@ -2,7 +2,6 @@ package http
 
 import http.routes.RequestResponseLambdaRoute
 import http.routes.Route
-import http.routes.RouteMatcher
 import http.routes.Routes
 import org.glassfish.grizzly.http.server.HttpHandler
 import org.glassfish.grizzly.http.server.HttpServer

@@ -8,8 +8,6 @@ import kotlin.test.assertEquals
 
 /**
  * @version $Id$
- *
- * TODO merge with route specs
  */
 public class RouteMatchingSpecs : Spek() {
     init {
@@ -64,14 +62,14 @@ public class RouteMatchingSpecs : Spek() {
             }
 
             on("adding controller route as object instance") {
-                val getRoute = ControllerRoute(Method.values(), "/customer", object {
+                val getRoute = ControllerRoute(Method.values(), "/", object {
                     public get fun doGet() {
                         ok()
                     }
                 })
 
-                val postRoute = ControllerRoute(Method.values(), "/customer", object {
-                    public post fun doGet() {
+                val postRoute = ControllerRoute(Method.values(), "/", object {
+                    public post fun doPost() {
                         ok()
                     }
                 })
@@ -91,6 +89,25 @@ public class RouteMatchingSpecs : Spek() {
 
                     assertEquals(true, postRoute.matches(postRequest));
                     assertEquals(false, postRoute.matches(getRequest));
+                }
+
+                val route963 = ControllerRoute(Method.values(), "/d-963", object {
+                    public get fun doGet() {
+                        ok()
+                    }
+                })
+
+                val request963 = request {
+                    path("/d-963")
+                }
+
+                val request51 = request {
+                    path("/d-51")
+                }
+
+                it("should match the route with the matching path only") {
+                    assertEquals(true, route963.matches(request963));
+                    assertEquals(false, route963.matches(request51));
                 }
             }
         }

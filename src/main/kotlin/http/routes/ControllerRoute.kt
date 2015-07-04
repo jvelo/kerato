@@ -31,7 +31,7 @@ public class ControllerRoute(
     }
 
     override fun matches(request: Request): Boolean {
-        return funs.any {
+        return this.uri.equals(request.path) && funs.any {
             request.method == it.first
         }
     }
@@ -39,7 +39,8 @@ public class ControllerRoute(
     override fun apply(exchange: Exchange): Exchange {
         val method = funs.firstOrNull { exchange.request.method == it.first } ?: return exchange
 
-        val result = method.second.invoke(handler)
+        val arguments = argumentsForMethodCall(exchange.request, method.second)
+        val result = method.second.invoke(handler, *arguments)
         val response : Response = when (result) {
             is CopiedResponse -> result
             is BaseResponse -> response {
@@ -54,4 +55,9 @@ public class ControllerRoute(
 
         return Exchange(exchange.request, response)
     }
+
+    private fun argumentsForMethodCall(request: Request, javaMethod: JavaMethod) : Array<Any> {
+        return arrayOf()
+    }
+
 }
