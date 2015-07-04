@@ -13,7 +13,7 @@ class RoutesSpecs : Spek() {
 
     init {
         given("a route collection") {
-            val routes = Routes()
+            val routes = DefaultRoutesBuilder()
 
             on("adding routes with the builder/fluent API") {
                 routes
@@ -70,6 +70,20 @@ class RoutesSpecs : Spek() {
                 it("should add the routes") {
                     assertEquals(2, routes.all().size())
                     assertNotNull(routes.all().firstOrNull {
+                        it.path == "/customer/:id"
+                    })
+                }
+
+                val otherRoutes = routes {
+                    at("customer", {
+                        get(":id", { request, response -> ok() })
+                        get(":id/balance", { request, response -> ok() })
+                    })
+                }
+
+                it("should add the routes, adding the leading slashes as necessary") {
+                    assertEquals(2, otherRoutes.all().size())
+                    assertNotNull(otherRoutes.all().firstOrNull {
                         it.path == "/customer/:id"
                     })
                 }

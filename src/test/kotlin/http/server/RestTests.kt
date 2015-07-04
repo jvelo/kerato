@@ -4,7 +4,7 @@ import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.RestAssured.given as stated
 import com.jayway.restassured.specification.ResponseSpecification
 import http.Server
-import http.routes.Routes
+import http.routes.RoutesBuilder
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.ExpectedException
@@ -35,7 +35,7 @@ public open class RestTests {
         server.start()
     }
 
-    public fun routes(fn: Routes.() -> Unit) {
+    public fun routes(fn: RoutesBuilder.() -> Unit) {
         server.configure {
             routes {
                 fn()

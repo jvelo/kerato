@@ -1,6 +1,11 @@
 package http.server
 
 import com.jayway.restassured.http.ContentType.JSON
+import http.Response
+import http.Status
+import http.ok
+import http.response
+import http.routes.post
 import http.server.RestTests
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
@@ -93,5 +98,35 @@ public class BasicTests : RestTests() {
             .header("X-Match-Second", `is`(nullValue()))
         .`when`()
             .get("/foo")
+    }
+
+    Test fun routes_nested_in_at_group() {
+        val controller = object  {
+            public post fun method() : Response {
+                return response {
+                    status(Status.CONFLICT)
+                }
+            }
+        }
+        routes {
+            at("foo", {
+                get("bar", { request, response ->
+                    response.halt {
+                        body("Matched")
+                    }
+                })
+                at("other", controller)
+            })
+        }
+
+        expect()
+                .body(equalTo("Matched"))
+                .`when`()
+                .get("/foo/bar")
+
+        expect()
+                .statusCode(409)
+                .`when`()
+                .post("/foo/other")
     }
 }

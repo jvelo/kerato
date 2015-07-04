@@ -2,7 +2,7 @@ package http
 
 import http.routes.RequestResponseLambdaRoute
 import http.routes.Route
-import http.routes.Routes
+import http.routes.DefaultRoutesBuilder
 import org.glassfish.grizzly.http.server.HttpHandler
 import org.glassfish.grizzly.http.server.HttpServer
 import org.json.JSONObject
@@ -29,8 +29,8 @@ class Server() {
 
     private var port: Int = 8080
 
-    public fun routes(fn: Routes.() -> Unit) {
-        val routes = Routes()
+    public fun routes(fn: DefaultRoutesBuilder.() -> Unit) {
+        val routes = DefaultRoutesBuilder()
         routes.fn()
         this.routes.addAll(routes.all())
     }

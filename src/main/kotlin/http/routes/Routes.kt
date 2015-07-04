@@ -3,12 +3,29 @@ package http.routes
 import http.Method
 import http.Request
 import http.Response
-import http.ok
+
+public interface Routes {
+    fun all(): List<Route>
+}
+
+public interface RoutesBuilder {
+    fun at(path: String, fn: RoutesBuilder.() -> Unit): RoutesBuilder
+    fun at(path: String, controller: Any): RoutesBuilder
+    fun get(path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder
+
+    fun build(): Routes
+}
+
+public class DefaultRoutes(val routes: List<Route>) : Routes {
+    override fun all(): List<Route> {
+        return routes
+    }
+}
 
 /**
  * @version $Id$
  */
-public class Routes {
+public class DefaultRoutesBuilder(val path: String? = null) : RoutesBuilder {
 
     private val routes: MutableList<Route> = arrayListOf()
 
@@ -16,18 +33,20 @@ public class Routes {
         return this.routes
     }
 
-    inline fun at(path: String, fn: Routes.() -> Unit): Routes {
-        this.fn()
+    override final inline fun at(path: String, fn: RoutesBuilder.() -> Unit): RoutesBuilder {
+        val routes = DefaultRoutesBuilder(path)
+        routes.fn()
+        this.routes.addAll(routes.build().all())
         return this
     }
 
-    fun at(path: String, controller: Any) : Routes {
-        routes.add(ControllerRoute(Method.values(), path, controller))
+    override fun at(path: String, controller: Any): RoutesBuilder {
+        routes.add(ControllerRoute(Method.values(), pathFor(path), controller))
         return this
     }
 
-    fun get(path: String, handler: (request: Request, response: Response) -> Response) : Routes {
-        return this.add(Method.GET, path, handler)
+    override fun get(path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder {
+        return this.add(Method.GET, pathFor(path), handler)
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -35,15 +54,30 @@ public class Routes {
     /**
      * Handler takes a request and existing response, returns a response (possibly modified)
      */
-    private fun add(method: Method, pattern: String, path: (request: Request, response: Response) -> Response): Routes {
+    private fun add(method: Method, pattern: String, path: (request: Request, response: Response) -> Response): RoutesBuilder {
         routes.add(RequestResponseLambdaRoute(arrayOf(method), pattern, path))
         return this
     }
 
+    private fun ensureLeadingSlashWhenNotEmpty(path: String) : String = when {
+        path.equals("") -> path
+        path.startsWith("/") -> path
+        else -> "/${path}"
+    }
+
+    private fun pathFor(path: String): String {
+        return ensureLeadingSlashWhenNotEmpty(this.path.orEmpty())
+                .concat(ensureLeadingSlashWhenNotEmpty(path))
+    }
+
+    override fun build(): Routes {
+        return DefaultRoutes(routes)
+    }
+
 }
 
-inline fun routes(fn: Routes.() -> Unit): Routes {
-    val routes = Routes()
+inline fun routes(fn: RoutesBuilder.() -> Unit): Routes {
+    val routes = DefaultRoutesBuilder()
     routes.fn()
-    return routes
+    return routes.build()
 }

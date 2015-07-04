@@ -16,7 +16,7 @@ class ResponseSpecs: Spek() {
                     status(Status.CONTINUE)
                 }
                 it("should build") {
-                    assertEquals(response.status, 201)
+                    assertEquals(response.status, 100)
                 }
             }
 
