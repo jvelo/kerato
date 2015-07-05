@@ -12,7 +12,7 @@ public class RequestResponseLambdaRoute(
 
     override fun matches(request: Request): Boolean {
         val methodMatches = this.methods.contains(request.method)
-        val pathMatches = this.path.equals(request.path)
+        val pathMatches = this.pathMatches(request)
 
         return methodMatches && pathMatches
     }
@@ -30,5 +30,21 @@ public class RequestResponseLambdaRoute(
             }
         }
         return Exchange(exchange.request, response)
+    }
+
+    fun pathMatches(request: Request): Boolean {
+        val routeParts = this.path.splitBy("/")
+        val requestParts = request.path.splitBy("/")
+
+        val partsMatching = routeParts.mapIndexed { index, part ->
+            when {
+                part.startsWith(":") -> true
+                requestParts.size() < index -> false
+                part.equals(requestParts[index]) -> true
+                else -> false
+            }
+        }
+
+        return partsMatching.none { it == false }
     }
 }

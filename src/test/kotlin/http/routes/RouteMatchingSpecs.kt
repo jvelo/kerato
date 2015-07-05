@@ -110,6 +110,17 @@ public class RouteMatchingSpecs : Spek() {
                     assertEquals(false, route963.matches(request51));
                 }
             }
+
+            on("matching a route with path params") {
+                val request = request {
+                    path("/customer/123")
+                }
+                val route = RequestResponseLambdaRoute(Method.GET, "/customer/:id", { req, resp -> ok() })
+
+                it("should match the route with passed params") {
+                    assertEquals(true, route.matches(request));;
+                }
+            }
         }
     }
 }
