@@ -33,8 +33,8 @@ public class RequestResponseLambdaRoute(
     }
 
     fun pathMatches(request: Request): Boolean {
-        val routeParts = this.path.splitBy("/")
-        val requestParts = request.path.splitBy("/")
+        val routeParts = this.path.split('/').filter(String::isNotEmpty)
+        val requestParts = request.path.split('/').filter(String::isNotEmpty)
 
         val partsMatching = routeParts.mapIndexed { index, part ->
             when {
