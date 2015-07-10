@@ -115,10 +115,12 @@ public class RouteMatchingSpecs : Spek() {
                 val request = request {
                     path("/customer/123")
                 }
-                val route = RequestResponseLambdaRoute(Method.GET, "/customer/:id", { req, resp -> ok() })
+                val routeWithRegex = RequestResponseLambdaRoute(Method.GET, "/customer/{id}", { req, resp -> ok() })
+                val routeWithoutRegex = RequestResponseLambdaRoute(Method.GET, "/customer/456", { req, resp -> ok() })
 
                 it("should match the route with passed params") {
-                    assertEquals(true, route.matches(request));;
+                    assertEquals(true, routeWithRegex.matches(request));;
+                    assertEquals(false, routeWithoutRegex.matches(request));;
                 }
             }
         }

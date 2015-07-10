@@ -1,6 +1,7 @@
 package http.routes
 
 import http.*
+import kotlin.text.Regex
 
 /**
  * @version $Id$
@@ -38,7 +39,7 @@ public class RequestResponseLambdaRoute(
 
         val partsMatching = routeParts.mapIndexed { index, part ->
             when {
-                part.startsWith(":") -> true
+                part.matches(Regex("\\{.*\\}")) -> true
                 requestParts.size() < index -> false
                 part.equals(requestParts[index]) -> true
                 else -> false
