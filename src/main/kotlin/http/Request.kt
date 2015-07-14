@@ -5,18 +5,6 @@ import kotlin.reflect.KClass
 /**
  * @version $Id$
  */
-
-public interface Request {
-    val path: String
-    val method: Method
-    val pathParameters: Map<String, String>
-
-    fun pathParameter(name: String): String?
-    fun <T> pathParameterAs(name: String): T?
-
-    fun with(fn: RequestBuilder.() -> Unit): Request
-}
-
 public interface RequestBuilder {
     fun path(path: String): RequestBuilder
     fun method(method: Method): RequestBuilder
@@ -25,25 +13,34 @@ public interface RequestBuilder {
     fun build(): Request
 }
 
-public data class BaseRequest(
-        override val path: String,
-        override val method: Method,
-        override val pathParameters: Map<String, String>
-) : Request {
+public data class Request(
+        val path: String,
+        val method: Method,
+        val pathParameters: Map<String, String>
+)  {
 
-    override final inline fun <reified T> pathParameterAs(name: String): T {
+    final inline fun <reified T> pathParameterAs(name: String): T? {
         val value = pathParameters.get(name)
-        val valueOfMethod = javaClass<T>().getMethod("valueOf", javaClass<String>())
+
+        when (value) {
+            null -> return null
+            is T -> return value
+        }
+
+        val javaClass = javaClass<T>()
+        val valueOfMethod = try { javaClass.getMethod("valueOf", javaClass<String>()) } catch (e: NoSuchMethodException) { null }
+        val stringConstructor = try { javaClass.getConstructor(javaClass<String>()) } catch (e: NoSuchMethodException) { null }
+
         return when {
-            value is T -> value
-            valueOfMethod != null -> valueOfMethod.invoke(javaClass<T>().newInstance(), value) as T
+            valueOfMethod != null -> valueOfMethod.invoke(null, value) as T
+            stringConstructor != null -> stringConstructor.newInstance(value)
             else -> null
         }
     }
 
-    override fun pathParameter(name: String) = pathParameters.get(name)
+    fun pathParameter(name: String) = pathParameters.get(name)
 
-    override fun with(fn: RequestBuilder.() -> Unit): Request {
+    fun with(fn: RequestBuilder.() -> Unit): Request {
         val builder = DefaultRequestBuilder(this)
         builder.fn()
         return builder.build()
@@ -78,7 +75,7 @@ class DefaultRequestBuilder() : RequestBuilder {
     }
 
     override fun build(): Request {
-        return BaseRequest(
+        return Request(
                 path = this.path,
                 method = this.method,
                 pathParameters = this.pathParameters
