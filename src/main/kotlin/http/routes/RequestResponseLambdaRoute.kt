@@ -22,7 +22,10 @@ public class RequestResponseLambdaRoute(
     this(arrayOf(method), uri, handler)
 
     override fun apply(exchange: Exchange): Exchange {
-        val result = this.handler(exchange.request, exchange.response)
+
+        val request = extractPathParams(exchange.request)
+
+        val result = this.handler(request, exchange.response)
         val response = when (result) {
             is CopiedResponse -> result
             else -> response {
@@ -30,7 +33,26 @@ public class RequestResponseLambdaRoute(
                 merge(result)
             }
         }
-        return Exchange(exchange.request, response)
+        return Exchange(request, response)
+    }
+
+    private fun extractPathParams(request: Request): Request {
+        val routeParts = this.path.split('/').filter(String::isNotEmpty)
+        val requestParts = request.path.split('/').filter(String::isNotEmpty)
+
+        val params = routeParts.mapIndexed { index, part ->
+            if (part.matches(Regex("\\{.*\\}")) && index < requestParts.size()) {
+                Pair(part.substring(1, part.length() - 1), requestParts.get(index))
+            } else {
+                null
+            }
+        }.filterNotNull() : List<Pair<String, String>>
+
+        if (params.isEmpty()) return request
+
+        return request.with {
+            params.forEach { pathParameter(it.first, it.second) }
+        }
     }
 
     fun pathMatches(request: Request): Boolean {

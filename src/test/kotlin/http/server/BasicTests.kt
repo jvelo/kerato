@@ -129,4 +129,30 @@ public class BasicTests : RestTests() {
                 .`when`()
                 .post("/foo/other")
     }
+
+    Test fun route_with_path_params() {
+        routes {
+            get("/order/{id}", { request, response -> response.with {
+                body(request.pathParameter("id").orEmpty())
+                header("X-Witness", request.pathParameter("other").orEmpty())
+            }})
+        }
+
+        expect().
+            body(equalTo("123")).
+            header("X-Witness", "").
+            `when`().
+            get("/order/123")
+
+        expect().
+            body(equalTo("456")).
+            header("X-Witness", "").
+            `when`().
+            get("/order/456/")
+
+        expect().
+            statusCode(404).
+            `when`().
+            get("/order/")
+    }
 }

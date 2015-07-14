@@ -27,6 +27,7 @@ public interface ResponseBuilder {
     fun header(header: Pair<String, String>): ResponseBuilder
     fun headers(vararg headers: Pair<String, String>): ResponseBuilder
     fun halt(): ResponseBuilder
+
     fun build(): Response
 }
 
