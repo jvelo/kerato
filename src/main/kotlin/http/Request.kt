@@ -5,19 +5,14 @@ import kotlin.reflect.KClass
 /**
  * @version $Id$
  */
-public interface RequestBuilder {
-    fun path(path: String): RequestBuilder
-    fun method(method: Method): RequestBuilder
-    fun pathParameter(name: String, value: String): RequestBuilder
 
-    fun build(): Request
-}
+public interface Request {
+    val path: String
+    val method: Method
+    val pathParameters: Map<String, String>
 
-public data class Request(
-        val path: String,
-        val method: Method,
-        val pathParameters: Map<String, String>
-)  {
+    fun with(fn: RequestBuilder.() -> Unit): Request
+    fun pathParameter(name: String) : String?
 
     final inline fun <reified T> pathParameterAs(name: String): T? {
         val value = pathParameters.get(name)
@@ -37,10 +32,25 @@ public data class Request(
             else -> null
         }
     }
+}
 
-    fun pathParameter(name: String) = pathParameters.get(name)
+public interface RequestBuilder {
+    fun path(path: String): RequestBuilder
+    fun method(method: Method): RequestBuilder
+    fun pathParameter(name: String, value: String): RequestBuilder
 
-    fun with(fn: RequestBuilder.() -> Unit): Request {
+    fun build(): Request
+}
+
+public data class DefaultRequest(
+        override val path: String,
+        override val method: Method,
+        override val pathParameters: Map<String, String>
+) : Request  {
+
+    override fun pathParameter(name: String) = pathParameters.get(name)
+
+    override fun with(fn: RequestBuilder.() -> Unit): Request {
         val builder = DefaultRequestBuilder(this)
         builder.fn()
         return builder.build()
@@ -75,7 +85,7 @@ class DefaultRequestBuilder() : RequestBuilder {
     }
 
     override fun build(): Request {
-        return Request(
+        return DefaultRequest(
                 path = this.path,
                 method = this.method,
                 pathParameters = this.pathParameters
