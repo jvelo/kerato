@@ -17,10 +17,19 @@ object app {
         try {
             server.configure {
                 routes {
-                    get("/foo", { request, response -> response.with {
-                        status(Status.OK)
-                        json(mapOf("yolo" to "swag"))
-                    }})
+                    get("/order/{id}", { request, response ->
+                        response.with {
+                            body(request.pathParameter("id").orEmpty())
+                            header("X-Witness", request.pathParameter("other").orEmpty())
+                        }
+                    })
+                    get("/some/{float}", { request, response ->
+                        response.with {
+                            val transactionId = request.pathParameterAs<Float>("float")
+                            body(java.lang.String.format("%.2f", transactionId ?: -1f))
+                            header("X-Witness", request.pathParameter("other").orEmpty())
+                        }
+                    })
                 }
             }
             server.start()
