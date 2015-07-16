@@ -11,11 +11,10 @@ public interface Request {
     val method: Method
     val pathParameters: Map<String, String>
 
-    fun with(fn: RequestBuilder.() -> Unit): Request
     fun pathParameter(name: String) : String?
 
     final inline fun <reified T> pathParameterAs(name: String): T? {
-        val value = pathParameters.get(name)
+        val value = pathParameter(name)
 
         when (value) {
             null -> return null
@@ -31,6 +30,12 @@ public interface Request {
             stringConstructor != null -> stringConstructor.newInstance(value)
             else -> null
         }
+    }
+
+    final inline fun with(fn: RequestBuilder.() -> Unit): Request {
+        val builder = DefaultRequestBuilder(this)
+        builder.fn()
+        return builder.build()
     }
 }
 
@@ -49,12 +54,6 @@ public data class DefaultRequest(
 ) : Request  {
 
     override fun pathParameter(name: String) = pathParameters.get(name)
-
-    override fun with(fn: RequestBuilder.() -> Unit): Request {
-        val builder = DefaultRequestBuilder(this)
-        builder.fn()
-        return builder.build()
-    }
 }
 
 class DefaultRequestBuilder() : RequestBuilder {
