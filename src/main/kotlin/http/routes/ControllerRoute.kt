@@ -1,6 +1,7 @@
 package http.routes
 
 import http.*
+import java.lang.reflect.Field
 import java.lang.reflect.Method as JavaMethod
 
 /**
@@ -8,39 +9,68 @@ import java.lang.reflect.Method as JavaMethod
  */
 public class ControllerRoute(
         methods: Array<Method>,
-        uri: String,
+        path: String,
         val handler: Any
-): Route(methods, uri) {
+): Route(methods, path), PathHandler {
 
-    val funs : List<Pair<Method, JavaMethod>>
+    data class ControllerMethod(
+        val method: Method,
+        val javaMethod: JavaMethod,
+        val path: String = ""
+    )
+
+    val funs : List<ControllerMethod>
+    val pathPrefix: String
 
     init {
+        pathPrefix = ensureEndsWithSlash(this.path) +
+                     ensureEndsWithSlash(handler.javaClass.getAnnotationsByType(javaClass<at>())
+                        .map { it.path }.firstOrNull() ?: ""
+                     )
+
         funs = handler.javaClass.getMethods().map { method ->
             method.getAnnotations().map {
                 when (it) {
-                    is get -> Pair(Method.GET, method)
-                    is post -> Pair(Method.POST, method)
-                    is delete -> Pair(Method.DELETE, method)
-                    is put -> Pair(Method.PUT, method)
-                    is options -> Pair(Method.OPTIONS, method)
-                    is patch -> Pair(Method.PATCH, method)
+                    is get -> buildMethod(Method.GET, method, it)
+                    is post -> buildMethod(Method.POST, method, it)
+                    is delete -> buildMethod(Method.DELETE, method, it)
+                    is put -> buildMethod(Method.PUT, method, it)
+                    is options -> buildMethod(Method.OPTIONS, method, it)
+                    is patch -> buildMethod(Method.PATCH, method, it)
                     else -> null
                 }
             }.firstOrNull()
         }.filterNotNull()
     }
 
-    override fun matches(request: Request): Boolean {
-        return this.path.equals(request.path) && funs.any {
-            request.method == it.first
+    private fun ensureEndsWithSlash(path: String): String = when {
+        path == "" -> path
+        path.endsWith("/") -> path
+        else -> path.concat("/")
+    }
+
+    private fun buildMethod(method: Method, javaMethod: JavaMethod, annotation: Annotation): ControllerMethod {
+        val pathField: JavaMethod? = try {
+            annotation.javaClass.getDeclaredMethod("path")
+        } catch (e: NoSuchFieldException) {
+            null
         }
+
+        val path = pathField?.invoke(annotation) as String?
+        val methodPath = pathPrefix.concat(path.orEmpty())
+        System.out.println(methodPath)
+        return ControllerMethod(method, javaMethod, methodPath)
+    }
+
+    override fun matches(request: Request): Boolean = funs.any {
+        request.method == it.method && pathMatches(it.path, request)
     }
 
     override fun apply(exchange: Exchange): Exchange {
-        val method = funs.firstOrNull { exchange.request.method == it.first } ?: return exchange
+        val method = funs.firstOrNull { exchange.request.method == it.method } ?: return exchange
 
-        val arguments = argumentsForMethodCall(exchange.request, method.second)
-        val result = method.second.invoke(handler, *arguments)
+        val arguments = argumentsForMethodCall(exchange.request, method.javaMethod)
+        val result = method.javaMethod.invoke(handler, *arguments)
         val response : Response = when (result) {
             is CopiedResponse -> result
             is BaseResponse -> response {

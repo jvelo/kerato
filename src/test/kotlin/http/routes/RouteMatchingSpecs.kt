@@ -111,6 +111,26 @@ public class RouteMatchingSpecs : Spek() {
                 }
             }
 
+            on("adding controller route with path annotations") {
+                val route = ControllerRoute(Method.values(), "here", object {
+                    public get("there") fun doGet() {
+                        ok()
+                    }
+                })
+
+                it("should account for the path annotations") {
+                    assertEquals(true, route.matches(request {
+                        path("/here/there/")
+                        method(Method.GET)
+                    }));
+
+                    assertEquals(false, route.matches(request {
+                        path("/here/not-there")
+                        method(Method.GET)
+                    }));
+                }
+            }
+
             on("matching a route with path params") {
                 val request = request {
                     path("/customer/123")
