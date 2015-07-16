@@ -15,7 +15,7 @@ public interface PathHandler {
         val partsMatching = routeParts.mapIndexed { index, part ->
             when {
                 part.matches(Regex("\\{.*\\}")) -> true
-                requestParts.size() < index -> false
+                requestParts.size() <= index -> false
                 part.equals(requestParts[index]) -> true
                 else -> false
             }

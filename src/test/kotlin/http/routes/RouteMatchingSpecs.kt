@@ -112,21 +112,40 @@ public class RouteMatchingSpecs : Spek() {
             }
 
             on("adding controller route with path annotations") {
-                val route = ControllerRoute(Method.values(), "here", object {
+                val route1 = ControllerRoute(Method.values(), "here", object {
                     public get("there") fun doGet() {
                         ok()
                     }
                 })
 
+                @at("up")
+                class Controller {
+                    public patch("there") fun doPatch() {
+                        ok()
+                    }
+                }
+
+                val route2 = ControllerRoute(Method.values(), "somewhere", Controller())
+
                 it("should account for the path annotations") {
-                    assertEquals(true, route.matches(request {
+                    assertEquals(true, route1.matches(request {
                         path("/here/there/")
                         method(Method.GET)
                     }));
 
-                    assertEquals(false, route.matches(request {
+                    assertEquals(false, route1.matches(request {
                         path("/here/not-there")
                         method(Method.GET)
+                    }));
+
+                    assertEquals(true, route2.matches(request {
+                        path("/somewhere/up/there")
+                        method(Method.PATCH)
+                    }));
+
+                    assertEquals(false, route2.matches(request {
+                        path("/up/there")
+                        method(Method.PATCH)
                     }));
                 }
             }
