@@ -1,4 +1,4 @@
-package cool.naze
+package kerato
 
 import http.Server
 import http.Status
@@ -17,7 +17,7 @@ object app {
         try {
             server.configure {
                 routes {
-                    get("/foo", { request, response -> response {
+                    get("/foo", { request, response -> response.with {
                         status(Status.OK)
                         json(mapOf("yolo" to "swag"))
                     }})
