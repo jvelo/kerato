@@ -6,6 +6,7 @@ import http.Request
 import http.Status
 import http.ok
 import http.response
+import http.routes.get
 import http.routes.post
 import http.server.RestTests
 import org.hamcrest.Matchers.`is`
@@ -169,5 +170,30 @@ public class BasicTests : RestTests() {
                 body(equalTo("3.14")).
                 `when`().
                 get("/some/3.1415926535")
+    }
+
+    Test fun controller_route_with_path_params() {
+        routes {
+            at("/controller", object {
+                public get("{id}") fun doGet(request: Request): Response {
+                    return response {
+                        body(request.pathParameter("id").orEmpty())
+                        header("X-Witness", request.pathParameter("tada").orEmpty())
+                    }
+                }
+            })
+        }
+
+        expect().
+                body(equalTo("123")).
+                header("X-Witness", "").
+                `when`().
+                get("/controller/123")
+
+        expect().
+                body(equalTo("456")).
+                header("X-Witness", "").
+                `when`().
+                get("/controller/456/")
     }
 }

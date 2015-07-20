@@ -11,22 +11,22 @@ public class ControllerRoute(
         methods: Array<Method>,
         path: String,
         val handler: Any
-): Route(methods, path), PathHandler {
+) : Route(methods, path), PathHandler {
 
     data class ControllerMethod(
-        val method: Method,
-        val javaMethod: JavaMethod,
-        val path: String = ""
+            val method: Method,
+            val javaMethod: JavaMethod,
+            val path: String = ""
     )
 
-    val funs : List<ControllerMethod>
+    val funs: List<ControllerMethod>
     val pathPrefix: String
 
     init {
         pathPrefix = ensureEndsWithSlash(this.path) +
-                     ensureEndsWithSlash(handler.javaClass.getAnnotationsByType(javaClass<at>())
+                ensureEndsWithSlash(handler.javaClass.getAnnotationsByType(javaClass<at>())
                         .map { it.path }.firstOrNull() ?: ""
-                     )
+                )
 
         funs = handler.javaClass.getMethods().map { method ->
             method.getAnnotations().map {
@@ -58,7 +58,6 @@ public class ControllerRoute(
 
         val path = pathField?.invoke(annotation) as String?
         val methodPath = pathPrefix.concat(path.orEmpty())
-        System.out.println(methodPath)
         return ControllerMethod(method, javaMethod, methodPath)
     }
 
@@ -69,25 +68,33 @@ public class ControllerRoute(
     override fun apply(exchange: Exchange): Exchange {
         val method = funs.firstOrNull { exchange.request.method == it.method } ?: return exchange
 
-        val arguments = argumentsForMethodCall(exchange.request, method.javaMethod)
+        val request = withPathParameters(method.path, exchange.request)
+
+        val arguments = argumentsForMethodCall(request, exchange.response, method.javaMethod)
         val result = method.javaMethod.invoke(handler, *arguments)
-        val response : Response = when (result) {
+        val response: Response = when (result) {
             is CopiedResponse -> result
             is BaseResponse -> response {
                 merge(exchange.response)
                 merge(result)
             }
+            null -> exchange.response
             is Unit -> exchange.response
             else -> exchange.response.with {
                 body(result)
             }
         }
 
-        return Exchange(exchange.request, response)
+        return Exchange(request, response)
     }
 
-    private fun argumentsForMethodCall(request: Request, javaMethod: JavaMethod) : Array<Any> {
-        return arrayOf()
+    private fun argumentsForMethodCall(request: Request, response: Response, javaMethod: JavaMethod): Array<Any?> {
+        return javaMethod.getParameterTypes().map({
+            when {
+                it.isAssignableFrom(javaClass<Request>()) -> request
+                it.isAssignableFrom(javaClass<Response>()) -> response
+                else -> null;
+            }
+        }).toTypedArray()
     }
-
 }
