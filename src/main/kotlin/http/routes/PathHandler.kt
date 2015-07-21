@@ -12,10 +12,13 @@ public interface PathHandler {
         val routeParts = path.split('/').filter(String::isNotEmpty)
         val requestParts = request.path.split('/').filter(String::isNotEmpty)
 
+        if (requestParts.size() != routeParts.size()) {
+            return false;
+        }
+
         val partsMatching = routeParts.mapIndexed { index, part ->
             when {
                 part.matches(Regex("\\{.*\\}")) -> true
-                requestParts.size() <= index -> false
                 part.equals(requestParts[index]) -> true
                 else -> false
             }

@@ -14,15 +14,13 @@ public class RouteMatchingSpecs : Spek() {
         given("a route matcher") {
 
             on("matching a route based on a static path") {
-                val request = request {
-                    path("/foo")
-                }
                 val fooRoute = RequestResponseLambdaRoute(Method.GET, "/foo", { req, resp -> ok() })
                 val barRoute = RequestResponseLambdaRoute(Method.GET, "/bar", { req, resp -> ok() })
 
                 it("should match the one with the same static path and not the others") {
-                    assertEquals(true, fooRoute.matches(request));
-                    assertEquals(false, barRoute.matches(request));
+                    assertEquals(true, fooRoute.matches(request { path("/foo") }));
+                    assertEquals(false, barRoute.matches(request { path("/foo") }));
+                    assertEquals(false, fooRoute.matches(request { path("/foo/bar") }));
                 }
             }
 
@@ -101,6 +99,10 @@ public class RouteMatchingSpecs : Spek() {
                     path("/d-963")
                 }
 
+                val request96351 = request {
+                    path("/d-963/d-51")
+                }
+
                 val request51 = request {
                     path("/d-51")
                 }
@@ -108,6 +110,7 @@ public class RouteMatchingSpecs : Spek() {
                 it("should match the route with the matching path only") {
                     assertEquals(true, route963.matches(request963));
                     assertEquals(false, route963.matches(request51));
+                    assertEquals(false, route963.matches(request96351))
                 }
             }
 
