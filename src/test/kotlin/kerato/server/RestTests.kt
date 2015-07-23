@@ -21,13 +21,10 @@ public open class RestTests {
     Rule
     public fun getThrown(): ExpectedException = _thrown
 
-    val responseSpec : ResponseSpecification?
-
     init {
         server.configure {
             port(port)
         }
-        responseSpec = given().port(port).expect()
         server.start()
     }
 
