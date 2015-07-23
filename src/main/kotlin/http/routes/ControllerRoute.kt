@@ -26,14 +26,13 @@ public class ControllerRoute(
 
     init {
         pathPrefix = this.path.asPathSegment() +
-                (handler.javaClass.getAnnotationsByType(javaClass<at>()).firstOrNull()?.let { it.path } ?: "").asPathSegment()
+                this.getControllerAnnotatedPath().asPathSegment()
 
         funs = handler.javaClass.getMethods().map { method ->
             // First, try to find the method by name
-            val byName = Method.values().firstOrNull { it.name().toLowerCase().equals(method.getName()) }?.let {
+            Method.values().firstOrNull { it.name().toLowerCase().equals(method.getName()) }?.let {
                 buildMethod(it, method)
-            }
-            byName ?: method.getAnnotations().map {
+            } ?: method.getAnnotations().map {
                 // If not found, let's look at the method annotations
                 when (it) {
                     is get -> buildMethod(Method.GET, method, it)
@@ -65,8 +64,8 @@ public class ControllerRoute(
                 merge(exchange.response)
                 merge(result)
             }
-            null -> exchange.response
             is Unit -> exchange.response
+            null -> exchange.response
             else -> exchange.response.with {
                 body(result)
             }
@@ -74,6 +73,9 @@ public class ControllerRoute(
 
         return Exchange(request, response)
     }
+
+    private fun getControllerAnnotatedPath(): String =
+            this.handler.javaClass.getAnnotationsByType(javaClass<at>()).firstOrNull()?.let { it.path } ?: ""
 
     private fun buildMethod(method: Method, javaMethod: JavaMethod, annotation: Annotation? = null): ControllerMethod {
         val pathField: JavaMethod? = try {
