@@ -29,7 +29,12 @@ public class ControllerRoute(
                 )
 
         funs = handler.javaClass.getMethods().map { method ->
-            method.getAnnotations().map {
+            // First, try to find the method by name
+            val byName = Method.values().firstOrNull { it.name().toLowerCase().equals(method.getName()) }?.let {
+                buildMethod(it, method)
+            }
+            byName ?: method.getAnnotations().map {
+                // If not found, let's look at the method annotations
                 when (it) {
                     is get -> buildMethod(Method.GET, method, it)
                     is post -> buildMethod(Method.POST, method, it)
@@ -49,9 +54,9 @@ public class ControllerRoute(
         else -> path.concat("/")
     }
 
-    private fun buildMethod(method: Method, javaMethod: JavaMethod, annotation: Annotation): ControllerMethod {
+    private fun buildMethod(method: Method, javaMethod: JavaMethod, annotation: Annotation? = null): ControllerMethod {
         val pathField: JavaMethod? = try {
-            annotation.javaClass.getDeclaredMethod("path")
+            annotation?.javaClass?.getDeclaredMethod("path")
         } catch (e: NoSuchFieldException) {
             null
         }

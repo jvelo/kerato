@@ -3,11 +3,14 @@ package http.server
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.config.RestAssuredConfig.newConfig
 import com.jayway.restassured.config.RedirectConfig.redirectConfig
+import http.Request
 
 import http.Response
+import http.response
 import http.routes.get
 import http.seeOther
 import org.hamcrest.Matchers
+import org.hamcrest.Matchers.equalTo
 import org.junit.Test
 
 /**
@@ -31,5 +34,54 @@ public class ControllerTests : RestTests() {
         `when`().
                 get("/are-you-there")
 
+    }
+
+    Test fun controller_with_methods_by_name() {
+        val controller = object {
+            public fun get(): String {
+                return "gotcha"
+            }
+            public fun post(): String {
+                return "posted"
+            }
+        }
+        routes {
+            at("/test", controller)
+        }
+
+        expect().
+                body(equalTo("gotcha")).
+        `when`().
+                get("/test")
+
+        expect().
+                body(equalTo("posted")).
+        `when`().
+                post("/test")
+    }
+
+    Test fun controller_route_with_path_params() {
+        routes {
+            at("/controller", object {
+                public get("{id}") fun doGet(request: Request): Response {
+                    return response {
+                        body(request.pathParameter("id").orEmpty())
+                        header("X-Witness", request.pathParameter("tada").orEmpty())
+                    }
+                }
+            })
+        }
+
+        expect().
+                body(equalTo("123")).
+                header("X-Witness", "").
+                `when`().
+                get("/controller/123")
+
+        expect().
+                body(equalTo("456")).
+                header("X-Witness", "").
+                `when`().
+                get("/controller/456/")
     }
 }
