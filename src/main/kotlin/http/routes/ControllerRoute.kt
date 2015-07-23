@@ -4,14 +4,16 @@ import http.*
 import java.lang.reflect.Field
 import java.lang.reflect.Method as JavaMethod
 
-/**
- * @version $Id$
- */
+fun String.asPathSegment(): String = when {
+    this == "" -> this
+    this.endsWith("/") -> this
+    else -> this.concat("/")
+}
+
 public class ControllerRoute(
-        methods: Array<Method>,
         path: String,
         val handler: Any
-) : Route(methods, path), PathHandler {
+) : Route(Method.values(), path), PathHandler {
 
     data class ControllerMethod(
             val method: Method,
@@ -23,10 +25,8 @@ public class ControllerRoute(
     val pathPrefix: String
 
     init {
-        pathPrefix = ensureEndsWithSlash(this.path) +
-                ensureEndsWithSlash(handler.javaClass.getAnnotationsByType(javaClass<at>())
-                        .map { it.path }.firstOrNull() ?: ""
-                )
+        pathPrefix = this.path.asPathSegment() +
+                (handler.javaClass.getAnnotationsByType(javaClass<at>()).firstOrNull()?.let { it.path } ?: "").asPathSegment()
 
         funs = handler.javaClass.getMethods().map { method ->
             // First, try to find the method by name
@@ -46,24 +46,6 @@ public class ControllerRoute(
                 }
             }.firstOrNull()
         }.filterNotNull()
-    }
-
-    private fun ensureEndsWithSlash(path: String): String = when {
-        path == "" -> path
-        path.endsWith("/") -> path
-        else -> path.concat("/")
-    }
-
-    private fun buildMethod(method: Method, javaMethod: JavaMethod, annotation: Annotation? = null): ControllerMethod {
-        val pathField: JavaMethod? = try {
-            annotation?.javaClass?.getDeclaredMethod("path")
-        } catch (e: NoSuchFieldException) {
-            null
-        }
-
-        val path = pathField?.invoke(annotation) as String?
-        val methodPath = pathPrefix.concat(path.orEmpty())
-        return ControllerMethod(method, javaMethod, methodPath)
     }
 
     override fun matches(request: Request): Boolean = funs.any {
@@ -91,6 +73,18 @@ public class ControllerRoute(
         }
 
         return Exchange(request, response)
+    }
+
+    private fun buildMethod(method: Method, javaMethod: JavaMethod, annotation: Annotation? = null): ControllerMethod {
+        val pathField: JavaMethod? = try {
+            annotation?.javaClass?.getDeclaredMethod("path")
+        } catch (e: NoSuchFieldException) {
+            null
+        }
+
+        val path = pathField?.invoke(annotation) as String?
+        val methodPath = pathPrefix.concat(path.orEmpty())
+        return ControllerMethod(method, javaMethod, methodPath)
     }
 
     private fun argumentsForMethodCall(request: Request, response: Response, javaMethod: JavaMethod): Array<Any?> {

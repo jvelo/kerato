@@ -41,7 +41,7 @@ public class DefaultRoutesBuilder(val path: String? = null) : RoutesBuilder {
     }
 
     override fun at(path: String, controller: Any): RoutesBuilder {
-        routes.add(ControllerRoute(Method.values(), pathFor(path), controller))
+        routes.add(ControllerRoute(pathFor(path), controller))
         return this
     }
 

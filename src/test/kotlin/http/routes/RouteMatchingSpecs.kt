@@ -60,13 +60,13 @@ public class RouteMatchingSpecs : Spek() {
             }
 
             on("adding controller route as object instance") {
-                val getRoute = ControllerRoute(Method.values(), "/", object {
+                val getRoute = ControllerRoute("/", object {
                     public get fun doGet() {
                         ok()
                     }
                 })
 
-                val postRoute = ControllerRoute(Method.values(), "/", object {
+                val postRoute = ControllerRoute("/", object {
                     public post fun doPost() {
                         ok()
                     }
@@ -89,7 +89,7 @@ public class RouteMatchingSpecs : Spek() {
                     assertEquals(false, postRoute.matches(getRequest));
                 }
 
-                val route963 = ControllerRoute(Method.values(), "/d-963", object {
+                val route963 = ControllerRoute("/d-963", object {
                     public get fun doGet() {
                         ok()
                     }
@@ -115,7 +115,7 @@ public class RouteMatchingSpecs : Spek() {
             }
 
             on("adding controller route with path annotations") {
-                val route1 = ControllerRoute(Method.values(), "here", object {
+                val route1 = ControllerRoute("here", object {
                     public get("there") fun doGet() {
                         ok()
                     }
@@ -128,7 +128,7 @@ public class RouteMatchingSpecs : Spek() {
                     }
                 }
 
-                val route2 = ControllerRoute(Method.values(), "somewhere", Controller())
+                val route2 = ControllerRoute("somewhere", Controller())
 
                 it("should account for the path annotations") {
                     assertEquals(true, route1.matches(request {
