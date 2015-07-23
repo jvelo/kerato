@@ -21,11 +21,7 @@ public open class RestTests {
     Rule
     public fun getThrown(): ExpectedException = _thrown
 
-    var responseSpec = null : ResponseSpecification?
-
-    Before fun initialize() {
-
-    }
+    val responseSpec : ResponseSpecification?
 
     init {
         server.configure {
