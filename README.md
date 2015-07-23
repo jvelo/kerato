@@ -12,7 +12,6 @@ TODO
 ----
 
 - Content negociation
-- Support for path parameters
 - Streaming payloads
 - Websockets / SSE
 - Filters / interceptors
