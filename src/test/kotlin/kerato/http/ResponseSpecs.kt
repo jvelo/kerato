@@ -1,4 +1,4 @@
-package http
+package kerato.http
 
 import org.jetbrains.spek.api.Spek
 import kotlin.test.assertEquals

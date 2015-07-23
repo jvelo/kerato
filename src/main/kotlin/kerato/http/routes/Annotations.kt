@@ -1,4 +1,4 @@
-package http.routes
+package kerato.http.routes
 
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy

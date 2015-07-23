@@ -1,14 +1,14 @@
-package http.server
+package kerato.http.server
 
 import com.jayway.restassured.http.ContentType.JSON
-import http.Response
-import http.Request
-import http.Status
-import http.ok
-import http.response
-import http.routes.get
-import http.routes.post
-import http.server.RestTests
+import kerato.http.Response
+import kerato.http.Request
+import kerato.http.Status
+import kerato.http.ok
+import kerato.http.response
+import kerato.http.routes.get
+import kerato.http.routes.post
+import kerato.http.server.RestTests
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.nullValue
@@ -58,13 +58,13 @@ public class BasicTests : RestTests() {
     Test fun several_routes_returning_new_responses() {
         routes {
             get("/foo", { request, response ->
-                http.response {
+                response {
                     body("Matched first")
                     header("X-Match-First", "Yes")
                 }
             })
             get("/foo", { request, response ->
-                http.response {
+                response {
                     body("Matched second")
                     header("X-Match-Second", "Also yes")
                 }

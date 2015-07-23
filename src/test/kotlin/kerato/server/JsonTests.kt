@@ -1,4 +1,4 @@
-package http.server
+package kerato.http.server
 
 import com.jayway.restassured.http.ContentType
 import org.hamcrest.Matchers

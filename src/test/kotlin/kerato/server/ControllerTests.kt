@@ -1,14 +1,14 @@
-package http.server
+package kerato.http.server
 
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.config.RestAssuredConfig.newConfig
 import com.jayway.restassured.config.RedirectConfig.redirectConfig
-import http.Request
+import kerato.http.Request
 
-import http.Response
-import http.response
-import http.routes.get
-import http.seeOther
+import kerato.http.Response
+import kerato.http.response
+import kerato.http.routes.get
+import kerato.http.seeOther
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.equalTo
 import org.junit.Test
@@ -45,6 +45,7 @@ public class ControllerTests : RestTests() {
                 return "posted"
             }
         }
+
         routes {
             at("/test", controller)
         }

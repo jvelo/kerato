@@ -1,8 +1,8 @@
-package http.routes
+package kerato.http.routes
 
-import http.Method
-import http.Request
-import http.Response
+import kerato.http.Method
+import kerato.http.Request
+import kerato.http.Response
 
 public interface Routes {
     fun all(): List<Route>

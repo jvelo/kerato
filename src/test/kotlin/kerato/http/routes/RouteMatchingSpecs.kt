@@ -1,8 +1,8 @@
-package http.routes
+package kerato.http.routes
 
-import http.Method
-import http.ok
-import http.request
+import kerato.http.Method
+import kerato.http.ok
+import kerato.http.request
 import org.jetbrains.spek.api.Spek
 import kotlin.test.assertEquals
 

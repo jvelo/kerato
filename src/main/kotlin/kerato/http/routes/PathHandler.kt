@@ -1,6 +1,6 @@
-package http.routes
+package kerato.http.routes
 
-import http.Request
+import kerato.http.Request
 import kotlin.text.Regex
 
 /**

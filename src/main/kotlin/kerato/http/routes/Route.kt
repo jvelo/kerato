@@ -1,8 +1,8 @@
-package http.routes
+package kerato.http.routes
 
-import http.Exchange
-import http.Method
-import http.Request
+import kerato.http.Exchange
+import kerato.http.Method
+import kerato.http.Request
 
 /**
  * @version $Id$

@@ -1,8 +1,8 @@
-package http
+package kerato.http
 
-import http.routes.RequestResponseLambdaRoute
-import http.routes.Route
-import http.routes.DefaultRoutesBuilder
+import kerato.http.routes.RequestResponseLambdaRoute
+import kerato.http.routes.Route
+import kerato.http.routes.DefaultRoutesBuilder
 import org.glassfish.grizzly.http.server.HttpHandler
 import org.glassfish.grizzly.http.server.HttpServer
 import org.json.JSONObject

@@ -1,4 +1,4 @@
-package http
+package kerato.http
 
 /**
  * @version $Id$
