@@ -36,16 +36,16 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <grizzly.version>2.3.16</grizzly.version>
-        <kotlin.version>0.12.613</kotlin.version>
+        <kotlin.version>0.12.1218</kotlin.version>
         <slf4j.version>1.7.12</slf4j.version>
     </properties>
 
     <dependencies>
-	    <dependency>
-		  <groupId>org.jetbrains.kotlin</groupId>
-		  <artifactId>kotlin-stdlib</artifactId>
-		  <version>${kotlin.version}</version>
-	    </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
