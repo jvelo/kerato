@@ -3,6 +3,8 @@ package kerato.http
 import java.io.*
 import java.net.InetSocketAddress
 import kotlin.reflect.KClass
+import kerato.conversions.Conversions
+import kotlin.reflect
 
 /**
  * @version $Id$
@@ -24,7 +26,7 @@ public data class Request(
                 reader.close()
             }
         }
-    
+
     fun pathParameter(name: String): String? = pathParameters.get(name)
 
     suppress("BASE_WITH_NULLABLE_UPPER_BOUND")
@@ -36,23 +38,7 @@ public data class Request(
             is T -> return value
         }
 
-        val javaClass = javaClass<T>()
-        val valueOfMethod = try {
-            javaClass.getMethod("valueOf", javaClass<String>())
-        } catch (e: NoSuchMethodException) {
-            null
-        }
-        val stringConstructor = try {
-            javaClass.getConstructor(javaClass<String>())
-        } catch (e: NoSuchMethodException) {
-            null
-        }
-
-        return when {
-            valueOfMethod != null -> valueOfMethod.invoke(null, value) as T
-            stringConstructor != null -> stringConstructor.newInstance(value)
-            else -> null
-        }
+        return Conversions.fromString(value!!, javaClass<T>())
     }
 
     final inline fun with(fn: RequestBuilder.() -> Unit): Request {
