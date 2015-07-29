@@ -9,8 +9,11 @@ import org.json.JSONObject
 import org.glassfish.grizzly.http.server.Request as GrizzlyRequest
 import org.glassfish.grizzly.http.server.Response as GrizzlyResponse
 import org.slf4j.LoggerFactory
+import java.io.PushbackInputStream
 import java.io.Writer
 import java.lang.reflect.Constructor
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.text.SimpleDateFormat
 import java.util
 import java.util.*
@@ -57,6 +60,13 @@ class Server() {
                 val request = request {
                     path(grizzlyRequest.getHttpHandlerPath())
                     method(Method.valueOf(grizzlyRequest.getMethod().getMethodString()))
+                    val stream = PushbackInputStream(grizzlyRequest.getNIOInputStream())
+                    val b = stream.read()
+                    if ( b != -1 ) {
+                        stream.unread(b);
+                        payload(stream)
+                    }
+                    clientAddress(InetSocketAddress.createUnresolved(grizzlyRequest.getRemoteAddr(), grizzlyRequest.getRemotePort()))
                 }
                 val initialResponse = response {
                     status(Status.NOT_FOUND)

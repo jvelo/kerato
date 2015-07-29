@@ -12,6 +12,7 @@ public interface RoutesBuilder {
     fun at(path: String, fn: RoutesBuilder.() -> Unit): RoutesBuilder
     fun at(path: String, controller: Any): RoutesBuilder
     fun get(path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder
+    fun post(path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder
 
     fun build(): Routes
 }
@@ -47,6 +48,10 @@ public class DefaultRoutesBuilder(val path: String? = null) : RoutesBuilder {
 
     override fun get(path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder {
         return this.add(Method.GET, pathFor(path), handler)
+    }
+
+    override fun post(path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder {
+        return this.add(Method.POST, pathFor(path), handler)
     }
 
     // ---------------------------------------------------------------------------------------------
