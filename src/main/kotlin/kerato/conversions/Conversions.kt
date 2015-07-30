@@ -1,14 +1,15 @@
 package kerato.conversions
 
 import kotlin.reflect.KClass
-import kotlin.reflect.jvm.java as jvmJava
+import kotlin.reflect.jvm.java as joe
 
 object Conversions {
 
     fun <T> fromString(value: String, type: KClass<T>): T {
-        return fromString(value, type.jvmJava)
+        return fromString(value, type.joe)
     }
 
+    suppress("UNCHECKED_CAST")
     fun <T> fromString(value: String, javaClass: Class<T>): T {
 
         if (javaClass.isPrimitive()) {
@@ -44,6 +45,7 @@ object Conversions {
         return null;
     }
 
+    suppress("UNCHECKED_CAST")
     private fun <T> javaPrimitiveFromString(value: String, javaClass: Class<T>): T {
         return when {
             javaClass.isAssignableFrom(javaClass<Short>()) -> java.lang.Short.valueOf(value) as T

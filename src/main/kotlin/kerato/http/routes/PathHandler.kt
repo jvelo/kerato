@@ -37,7 +37,7 @@ public interface PathHandler {
             } else {
                 null
             }
-        }.filterNotNull() : List<Pair<String, String>>
+        }.filterNotNull()
 
         if (params.isEmpty()) return request
 

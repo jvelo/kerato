@@ -52,6 +52,7 @@ class Server() {
         this.httpServer?.start()
     }
 
+    suppress("UNCHECKED_CAST")
     private fun build() : Server{
         httpServer = HttpServer.createSimpleServer(".", this.port)
         httpServer?.getServerConfiguration()?.addHttpHandler(object : HttpHandler() {
@@ -82,9 +83,9 @@ class Server() {
                 })
 
                 grizzlyResponse.setStatus(exchange.response.status)
-                exchange.response.headers.forEach { entry ->
+                exchange.response.headers.forEach({ entry ->
                     grizzlyResponse.addHeader(entry.key, entry.value)
-                }
+                })
 
                 when (exchange.response.type()) {
                     "application/json" -> {
