@@ -34,7 +34,7 @@ object Conversions {
         } catch (e: NoSuchMethodException) {
             null
         }
-        if ( stringConstructor != null) {
+        if (stringConstructor != null) {
             try {
                 return stringConstructor.newInstance(value)
             } catch (e: java.lang.reflect.InvocationTargetException) {
