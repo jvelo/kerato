@@ -1,6 +1,6 @@
 package kerato.http.routes
 
-import kerato.http.Method
+import kerato.http.HttpMethod
 import kerato.http.Request
 import kerato.http.Response
 
@@ -47,11 +47,11 @@ public class DefaultRoutesBuilder(val path: String? = null) : RoutesBuilder {
     }
 
     override fun get(path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder {
-        return this.add(Method.GET, pathFor(path), handler)
+        return this.add(HttpMethod.GET, pathFor(path), handler)
     }
 
     override fun post(path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder {
-        return this.add(Method.POST, pathFor(path), handler)
+        return this.add(HttpMethod.POST, pathFor(path), handler)
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public class DefaultRoutesBuilder(val path: String? = null) : RoutesBuilder {
     /**
      * Handler takes a request and existing response, returns a response (possibly modified)
      */
-    private fun add(method: Method, pattern: String, path: (request: Request, response: Response) -> Response): RoutesBuilder {
+    private fun add(method: HttpMethod, pattern: String, path: (request: Request, response: Response) -> Response): RoutesBuilder {
         routes.add(RequestResponseLambdaRoute(arrayOf(method), pattern, path))
         return this
     }

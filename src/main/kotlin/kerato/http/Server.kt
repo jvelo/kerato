@@ -60,7 +60,7 @@ class Server() {
 
                 val request = request {
                     path(grizzlyRequest.getHttpHandlerPath())
-                    method(Method.valueOf(grizzlyRequest.getMethod().getMethodString()))
+                    method(HttpMethod.valueOf(grizzlyRequest.getMethod().getMethodString()))
                     val stream = PushbackInputStream(grizzlyRequest.getNIOInputStream())
                     val b = stream.read()
                     if ( b != -1 ) {

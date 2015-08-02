@@ -13,10 +13,10 @@ fun String.asPathSegment(): String = when {
 public class ControllerRoute(
         path: String,
         val handler: Any
-) : Route(Method.values(), path), PathHandler {
+) : Route(HttpMethod.values(), path), PathHandler {
 
     data class ControllerMethod(
-            val method: Method,
+            val method: HttpMethod,
             val javaMethod: JavaMethod,
             val path: String = ""
     )
@@ -30,17 +30,17 @@ public class ControllerRoute(
 
         funs = handler.javaClass.getMethods().map { method ->
             // First, try to find the method by name
-            Method.values().firstOrNull { it.name().toLowerCase().equals(method.getName()) }?.let {
+            HttpMethod.values().firstOrNull { it.name().toLowerCase().equals(method.getName()) }?.let {
                 buildMethod(it, method)
             } ?: method.getAnnotations().map {
                 // If not found, let's look at the method annotations
                 when (it) {
-                    is get -> buildMethod(Method.GET, method, it)
-                    is post -> buildMethod(Method.POST, method, it)
-                    is delete -> buildMethod(Method.DELETE, method, it)
-                    is put -> buildMethod(Method.PUT, method, it)
-                    is options -> buildMethod(Method.OPTIONS, method, it)
-                    is patch -> buildMethod(Method.PATCH, method, it)
+                    is get -> buildMethod(HttpMethod.GET, method, it)
+                    is post -> buildMethod(HttpMethod.POST, method, it)
+                    is delete -> buildMethod(HttpMethod.DELETE, method, it)
+                    is put -> buildMethod(HttpMethod.PUT, method, it)
+                    is options -> buildMethod(HttpMethod.OPTIONS, method, it)
+                    is patch -> buildMethod(HttpMethod.PATCH, method, it)
                     else -> null
                 }
             }.firstOrNull()
@@ -77,7 +77,7 @@ public class ControllerRoute(
     private fun getControllerAnnotatedPath(): String =
             this.handler.javaClass.getAnnotationsByType(javaClass<at>()).firstOrNull()?.let { it.path } ?: ""
 
-    private fun buildMethod(method: Method, javaMethod: JavaMethod, annotation: Annotation? = null): ControllerMethod {
+    private fun buildMethod(method: HttpMethod, javaMethod: JavaMethod, annotation: Annotation? = null): ControllerMethod {
         val pathField: JavaMethod? = try {
             annotation?.javaClass?.getDeclaredMethod("path")
         } catch (e: NoSuchFieldException) {

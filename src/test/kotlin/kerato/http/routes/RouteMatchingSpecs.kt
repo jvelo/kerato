@@ -1,6 +1,6 @@
 package kerato.http.routes
 
-import kerato.http.Method
+import kerato.http.HttpMethod
 import kerato.http.ok
 import kerato.http.request
 import org.jetbrains.spek.api.Spek
@@ -14,8 +14,8 @@ public class RouteMatchingSpecs : Spek() {
         given("a route matcher") {
 
             on("matching a route based on a static path") {
-                val fooRoute = RequestResponseLambdaRoute(Method.GET, "/foo", { req, resp -> ok() })
-                val barRoute = RequestResponseLambdaRoute(Method.GET, "/bar", { req, resp -> ok() })
+                val fooRoute = RequestResponseLambdaRoute(HttpMethod.GET, "/foo", { req, resp -> ok() })
+                val barRoute = RequestResponseLambdaRoute(HttpMethod.GET, "/bar", { req, resp -> ok() })
 
                 it("should match the one with the same static path and not the others") {
                     assertEquals(true, fooRoute.matches(request { path("/foo") }));
@@ -27,14 +27,14 @@ public class RouteMatchingSpecs : Spek() {
             on("matching a route based on a method") {
                 val getRequest = request {
                     path("/")
-                    method(Method.GET)
+                    method(HttpMethod.GET)
                 }
                 val postRequest = request {
                     path("/")
-                    method(Method.POST)
+                    method(HttpMethod.POST)
                 }
 
-                val route = RequestResponseLambdaRoute(Method.POST, "/", { req, resp -> ok() })
+                val route = RequestResponseLambdaRoute(HttpMethod.POST, "/", { req, resp -> ok() })
 
                 it("should match only when the method matches") {
                     assertEquals(true, route.matches(postRequest));
@@ -45,12 +45,12 @@ public class RouteMatchingSpecs : Spek() {
             on("matching a route based on an array of methods") {
                 val postRequest = request {
                     path("/")
-                    method(Method.POST)
+                    method(HttpMethod.POST)
                 }
 
-                val routeWithOneEntryArray = RequestResponseLambdaRoute(arrayOf(Method.POST), "/", { req, resp -> ok() })
-                val routeWithOneTwoArray = RequestResponseLambdaRoute(arrayOf(Method.POST, Method.GET), "/", { req, resp -> ok() })
-                val routeWithoutPostRequest = RequestResponseLambdaRoute(arrayOf(Method.OPTIONS), "/", { req, resp -> ok() })
+                val routeWithOneEntryArray = RequestResponseLambdaRoute(arrayOf(HttpMethod.POST), "/", { req, resp -> ok() })
+                val routeWithOneTwoArray = RequestResponseLambdaRoute(arrayOf(HttpMethod.POST, HttpMethod.GET), "/", { req, resp -> ok() })
+                val routeWithoutPostRequest = RequestResponseLambdaRoute(arrayOf(HttpMethod.OPTIONS), "/", { req, resp -> ok() })
 
                 it("should match only when the method matches") {
                     assertEquals(true, routeWithOneEntryArray.matches(postRequest));
@@ -74,11 +74,11 @@ public class RouteMatchingSpecs : Spek() {
 
                 val getRequest = request {
                     path("/")
-                    method(Method.GET)
+                    method(HttpMethod.GET)
                 }
                 val postRequest = request {
                     path("/")
-                    method(Method.POST)
+                    method(HttpMethod.POST)
                 }
 
                 it("should match the route with the matching method only") {
@@ -133,22 +133,22 @@ public class RouteMatchingSpecs : Spek() {
                 it("should account for the path annotations") {
                     assertEquals(true, route1.matches(request {
                         path("/here/there/")
-                        method(Method.GET)
+                        method(HttpMethod.GET)
                     }));
 
                     assertEquals(false, route1.matches(request {
                         path("/here/not-there")
-                        method(Method.GET)
+                        method(HttpMethod.GET)
                     }));
 
                     assertEquals(true, route2.matches(request {
                         path("/somewhere/up/there")
-                        method(Method.PATCH)
+                        method(HttpMethod.PATCH)
                     }));
 
                     assertEquals(false, route2.matches(request {
                         path("/up/there")
-                        method(Method.PATCH)
+                        method(HttpMethod.PATCH)
                     }));
                 }
             }
@@ -157,8 +157,8 @@ public class RouteMatchingSpecs : Spek() {
                 val request = request {
                     path("/customer/123")
                 }
-                val routeWithRegex = RequestResponseLambdaRoute(Method.GET, "/customer/{id}", { req, resp -> ok() })
-                val routeWithoutRegex = RequestResponseLambdaRoute(Method.GET, "/customer/456", { req, resp -> ok() })
+                val routeWithRegex = RequestResponseLambdaRoute(HttpMethod.GET, "/customer/{id}", { req, resp -> ok() })
+                val routeWithoutRegex = RequestResponseLambdaRoute(HttpMethod.GET, "/customer/456", { req, resp -> ok() })
 
                 it("should match the route with passed params") {
                     assertEquals(true, routeWithRegex.matches(request));;

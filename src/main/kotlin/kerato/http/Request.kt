@@ -12,7 +12,7 @@ import kotlin.reflect
 
 public data class Request(
         val path: String = "",
-        val method: Method = Method.GET,
+        val method: HttpMethod = HttpMethod.GET,
         val pathParameters: Map<String, String> = mapOf(),
         val clientAddress: InetSocketAddress = InetSocketAddress.createUnresolved("0.0.0.0", 80),
         val payload: InputStream? = null
@@ -50,7 +50,7 @@ public data class Request(
 
 public interface RequestBuilder {
     fun path(path: String): RequestBuilder
-    fun method(method: Method): RequestBuilder
+    fun method(method: HttpMethod): RequestBuilder
     fun pathParameter(name: String, value: String): RequestBuilder
     fun payload(payload: InputStream): RequestBuilder
     fun clientAddress(clientAddress: InetSocketAddress): RequestBuilder
@@ -65,7 +65,7 @@ class DefaultRequestBuilder(var request: Request = Request()) : RequestBuilder {
         return this
     }
 
-    override fun method(method: Method): RequestBuilder {
+    override fun method(method: HttpMethod): RequestBuilder {
         request = request.copy(method = method)
         return this
     }

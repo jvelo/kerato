@@ -7,11 +7,11 @@ import kotlin.text.Regex
  * @version $Id$
  */
 public class RequestResponseLambdaRoute(
-        methods: Array<Method>,
+        methods: Array<HttpMethod>,
         path: String,
         val handler: (request: Request, response: Response) -> Response) : Route(methods, path), PathHandler {
 
-    constructor(method: Method, uri: String, handler: (request: Request, response: Response) -> Response) :
+    constructor(method: HttpMethod, uri: String, handler: (request: Request, response: Response) -> Response) :
     this(arrayOf(method), uri, handler)
 
     override fun matches(request: Request): Boolean =
