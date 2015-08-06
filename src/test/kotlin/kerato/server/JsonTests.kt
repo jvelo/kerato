@@ -11,11 +11,11 @@ public class JsonTests : RestTests() {
 
     Test fun a_route_returning_json() {
         routes {
-            get("/foo", { request, response ->
+            get("/foo") { request, response ->
                 response.with {
                     json(mapOf("hello" to "world"))
                 }
-            })
+            }
         }
 
         expect()
@@ -27,19 +27,19 @@ public class JsonTests : RestTests() {
 
     Test fun a_route_returning_json_via_vararg() {
         routes {
-            get("/foo", { request, response ->
+            get("/foo") { request, response ->
                 response.with {
                     json("hello" to "world")
                 }
-            })
-            get("/bar", { request, response ->
+            }
+            get("/bar") { request, response ->
                 response.with {
                     json(
                         "hello" to "world",
                         "hallo" to "welt"
                     )
                 }
-            })
+            }
         }
         expect()
                 .body("hello", Matchers.equalTo("world"))

@@ -22,11 +22,11 @@ import org.junit.Test
 public class PayloadTests : RestTests() {
     Test fun a_route_returning_json() {
         routes {
-            post("/foo", { request, response ->
+            post("/foo") { request, response ->
                 response.with {
                     body(request.content.orEmpty())
                 }
-            })
+            }
         }
 
         given()

@@ -21,11 +21,11 @@ public class BasicTests : RestTests() {
 
     Test fun simple_test_with_one_route() {
         routes {
-            get("/foo", { request, response ->
+            get("/foo") { request, response ->
                 response.with {
                     body("Yes.")
                 }
-            })
+            }
         }
         expect().body(equalTo("Yes.")).`when`().get("/foo")
         expect().statusCode(404).`when`().get("/not-found")
@@ -33,18 +33,18 @@ public class BasicTests : RestTests() {
 
     Test fun several_routes_returning_copied_responses() {
         routes {
-            get("/foo", { request, response ->
+            get("/foo") { request, response ->
                 response.with {
                     body("Matched first")
                     header("X-Match-First", "Yes")
                 }
-            })
-            get("/foo", { request, response ->
+            }
+            get("/foo") { request, response ->
                 response.with {
                     body("Matched second")
                     header("X-Match-Second", "Also yes")
                 }
-            })
+            }
         }
 
         expect()
@@ -57,18 +57,18 @@ public class BasicTests : RestTests() {
 
     Test fun several_routes_returning_new_responses() {
         routes {
-            get("/foo", { request, response ->
+            get("/foo") { request, response ->
                 response {
                     body("Matched first")
                     header("X-Match-First", "Yes")
                 }
-            })
-            get("/foo", { request, response ->
+            }
+            get("/foo") { request, response ->
                 response {
                     body("Matched second")
                     header("X-Match-Second", "Also yes")
                 }
-            })
+            }
         }
         expect()
                 .body(equalTo("Matched second"))
@@ -80,18 +80,18 @@ public class BasicTests : RestTests() {
 
     Test fun several_routes_with_one_halting() {
         routes {
-            get("/foo", { request, response ->
+            get("/foo") { request, response ->
                 response.halt {
                     body("Matched first")
                     header("X-Match-First", "Yes")
                 }
-            })
-            get("/foo", { request, response ->
+            }
+            get("/foo") { request, response ->
                 response.with {
                     body("Matched second")
                     header("X-Match-Second", "Also yes")
                 }
-            })
+            }
         }
 
         expect()
@@ -111,14 +111,14 @@ public class BasicTests : RestTests() {
             }
         }
         routes {
-            at("foo", {
-                get("bar", { request, response ->
+            at("foo") {
+                get("bar") { request, response ->
                     response.halt {
                         body("Matched")
                     }
-                })
+                }
                 at("other", controller)
-            })
+            }
         }
 
         expect()
@@ -134,19 +134,19 @@ public class BasicTests : RestTests() {
 
     Test fun route_with_path_params() {
         routes {
-            get("/order/{id}", { request, response ->
+            get("/order/{id}") { request, response ->
                 response.with {
                     body(request.pathParameter("id").orEmpty())
                     header("X-Witness", request.pathParameter("other").orEmpty())
                 }
-            })
-            get("/some/{float}", { request, response ->
+            }
+            get("/some/{float}") { request, response ->
                 response.with {
                     val transactionId = request.pathParameterAs<Float>("float")
                     body(java.lang.String.format("%.2f", transactionId ?: -1f))
                     header("X-Witness", request.pathParameter("other").orEmpty())
                 }
-            })
+            }
         }
 
         expect().
