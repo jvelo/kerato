@@ -1,7 +1,6 @@
 package kerato.http.routes
 
 import kerato.http.*
-import java.lang.reflect.Field
 import java.lang.reflect.Method as JavaMethod
 
 fun String.asPathSegment(): String = when {

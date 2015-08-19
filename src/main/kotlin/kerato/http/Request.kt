@@ -1,10 +1,8 @@
 package kerato.http
 
-import java.io.*
-import java.net.InetSocketAddress
-import kotlin.reflect.KClass
 import kerato.conversions.Conversions
-import kotlin.reflect
+import java.io.InputStream
+import java.net.InetSocketAddress
 
 /**
  * @version $Id$

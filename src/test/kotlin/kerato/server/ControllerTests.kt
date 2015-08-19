@@ -1,15 +1,12 @@
 package kerato.http.server
 
-import com.jayway.restassured.http.ContentType
-import com.jayway.restassured.config.RestAssuredConfig.newConfig
 import com.jayway.restassured.config.RedirectConfig.redirectConfig
+import com.jayway.restassured.config.RestAssuredConfig.newConfig
 import kerato.http.Request
-
 import kerato.http.Response
 import kerato.http.response
 import kerato.http.routes.get
 import kerato.http.seeOther
-import org.hamcrest.Matchers
 import org.hamcrest.Matchers.equalTo
 import org.junit.Test
 

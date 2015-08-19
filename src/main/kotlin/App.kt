@@ -1,8 +1,6 @@
 package kerato
 
 import kerato.http.Server
-import kerato.http.Status
-import kerato.http.response
 import org.slf4j.LoggerFactory
 import java.io.IOException
 

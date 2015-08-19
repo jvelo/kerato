@@ -1,10 +1,11 @@
 package kerato.http.routes
 
-import kerato.http.*
+import kerato.http.ok
+import kerato.http.response
+import kerato.http.seeOther
 import org.jetbrains.spek.api.Spek
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.expect
 
 /**
  * @version $Id$

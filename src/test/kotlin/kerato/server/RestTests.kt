@@ -1,14 +1,13 @@
 package kerato.http.server
 
 import com.jayway.restassured.specification.RequestSpecification
-import com.jayway.restassured.RestAssured.given as stated
 import com.jayway.restassured.specification.ResponseSpecification
 import kerato.http.Server
 import kerato.http.routes.RoutesBuilder
-import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.ExpectedException
 import java.util.Random
+import com.jayway.restassured.RestAssured.given as stated
 
 /**
  * @version $Id$

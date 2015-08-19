@@ -1,23 +1,15 @@
 package kerato.http
 
-import kerato.http.routes.RequestResponseLambdaRoute
-import kerato.http.routes.Route
 import kerato.http.routes.DefaultRoutesBuilder
+import kerato.http.routes.Route
 import org.glassfish.grizzly.http.server.HttpHandler
 import org.glassfish.grizzly.http.server.HttpServer
 import org.json.JSONObject
-import org.glassfish.grizzly.http.server.Request as GrizzlyRequest
-import org.glassfish.grizzly.http.server.Response as GrizzlyResponse
 import org.slf4j.LoggerFactory
 import java.io.PushbackInputStream
-import java.io.Writer
-import java.lang.reflect.Constructor
-import java.net.InetAddress
 import java.net.InetSocketAddress
-import java.text.SimpleDateFormat
-import java.util
-import java.util.*
-import kotlin.reflect.KCallable
+import org.glassfish.grizzly.http.server.Request as GrizzlyRequest
+import org.glassfish.grizzly.http.server.Response as GrizzlyResponse
 
 /**
  * @version $Id$

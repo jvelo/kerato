@@ -1,7 +1,6 @@
 package kerato.http.routes
 
 import kerato.http.*
-import kotlin.text.Regex
 
 /**
  * @version $Id$
