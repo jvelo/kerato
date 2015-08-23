@@ -12,6 +12,7 @@ TODO
 ----
 
 - Content negociation
+- Support for automatically handling HEAD requests
 - Streaming payloads
 - Websockets / SSE
 - Filters / interceptors
