@@ -22,7 +22,7 @@ public class BasicTests : RestTests() {
                 }
             }
         }
-        expect().body(equalTo("Yes.")).`when`().get("/foo")
+        expect().body(equalTo("Yes.")).statusCode(200).`when`().get("/foo")
         expect().statusCode(404).`when`().get("/not-found")
     }
 

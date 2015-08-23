@@ -61,11 +61,13 @@ class Server() {
                     }
                     clientAddress(InetSocketAddress.createUnresolved(grizzlyRequest.getRemoteAddr(), grizzlyRequest.getRemotePort()))
                 }
-                val initialResponse = response {
-                    status(Status.NOT_FOUND)
-                }
+
 
                 val matchingRoutes = routes.filter { it.matches(request) }
+
+                val initialResponse = response {
+                    status(if (matchingRoutes.size() > 0) Status.OK else Status.NOT_FOUND)
+                }
 
                 val exchange = matchingRoutes.fold(Exchange(request, initialResponse), {
                     exchange, route -> when (exchange.response.halted) {
