@@ -48,13 +48,13 @@ object Conversions {
     suppress("UNCHECKED_CAST")
     private fun <T> javaPrimitiveFromString(value: String, javaClass: Class<T>): T {
         return when {
-            javaClass.isAssignableFrom(javaClass<Short>()) -> java.lang.Short.valueOf(value) as T
-            javaClass.isAssignableFrom(javaClass<Int>()) -> java.lang.Integer.valueOf(value) as T
-            javaClass.isAssignableFrom(javaClass<Long>()) -> java.lang.Long.valueOf(value) as T
-            javaClass.isAssignableFrom(javaClass<Char>()) -> value.charAt(0) as T
-            javaClass.isAssignableFrom(javaClass<Float>()) -> java.lang.Float.valueOf(value) as T
-            javaClass.isAssignableFrom(javaClass<Double>()) -> java.lang.Double.valueOf(value) as T
-            javaClass.isAssignableFrom(javaClass<Boolean>()) -> java.lang.Boolean.valueOf(value) as T
+            javaClass<Short>().isAssignableFrom(javaClass) -> java.lang.Short.valueOf(value) as T
+            javaClass<Int>().isAssignableFrom(javaClass) -> java.lang.Integer.valueOf(value) as T
+            javaClass<Long>().isAssignableFrom(javaClass) -> java.lang.Long.valueOf(value) as T
+            javaClass<Char>().isAssignableFrom(javaClass) -> value.charAt(0) as T
+            javaClass<Float>().isAssignableFrom(javaClass) -> java.lang.Float.valueOf(value) as T
+            javaClass<Double>().isAssignableFrom(javaClass) -> java.lang.Double.valueOf(value) as T
+            javaClass<Boolean>().isAssignableFrom(javaClass) -> java.lang.Boolean.valueOf(value) as T
             else -> null
         }
     }
