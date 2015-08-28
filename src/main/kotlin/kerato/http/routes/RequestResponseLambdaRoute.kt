@@ -5,22 +5,11 @@ import kerato.http.*
 /**
  * @version $Id$
  */
-public class RequestResponseLambdaRoute(
-        methods: Array<HttpMethod>,
-        path: String,
-        val handler: (request: Request, response: Response) -> Response) : Route(methods, path), PathHandler {
+public class RequestResponseLambdaRoute(val handler: (request: Request, response: Response) -> Response) : (Exchange) -> Exchange {
 
-    constructor(method: HttpMethod, uri: String, handler: (request: Request, response: Response) -> Response) :
-    this(arrayOf(method), uri, handler)
+    override fun invoke(exchange: Exchange): Exchange {
 
-    override fun matches(request: Request): Boolean =
-            this.methods.contains(request.method) && this.pathMatches(this.path, request)
-
-    override fun apply(exchange: Exchange): Exchange {
-
-        val request = withPathParameters(this.path, exchange.request)
-
-        val result = this.handler(request, exchange.response)
+        val result = this.handler(exchange.request, exchange.response)
         val response = when (result) {
             is CopiedResponse -> result
             else -> response {
@@ -28,7 +17,6 @@ public class RequestResponseLambdaRoute(
                 merge(result)
             }
         }
-        return Exchange(request, response)
+        return Exchange(exchange.request, response)
     }
-
 }

@@ -1,7 +1,8 @@
 package kerato.http
 
 import kerato.http.routes.DefaultRoutesBuilder
-import kerato.http.routes.Route
+import kerato.http.routes.RouteEntry
+import kerato.http.routes.withPathParameters
 import org.glassfish.grizzly.http.server.HttpHandler
 import org.glassfish.grizzly.http.server.HttpServer
 import org.json.JSONObject
@@ -20,7 +21,7 @@ class Server() {
 
     private var httpServer: HttpServer? = null
 
-    private val routes: MutableList<Route> = arrayListOf()
+    private val routes: MutableList<RouteEntry> = arrayListOf()
 
     private var port: Int = 8080
 
@@ -72,7 +73,7 @@ class Server() {
                 val exchange = matchingRoutes.fold(Exchange(request, initialResponse), {
                     exchange, route -> when (exchange.response.halted) {
                         true -> exchange
-                        else -> route.apply(exchange)
+                        else -> route.handler(applyPathParams(exchange, route))
                     }
                 })
 
@@ -103,4 +104,7 @@ class Server() {
         logger.info("Server started with port {}", this.port)
         return this
     }
+
+    private fun applyPathParams(exchange: Exchange, route: RouteEntry) : Exchange =
+        Exchange(withPathParameters(route.path, exchange.request), exchange.response)
 }

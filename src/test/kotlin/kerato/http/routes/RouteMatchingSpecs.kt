@@ -1,5 +1,6 @@
 package kerato.http.routes
 
+import kerato.http.Exchange
 import kerato.http.HttpMethod
 import kerato.http.ok
 import kerato.http.request
@@ -14,8 +15,8 @@ public class RouteMatchingSpecs : Spek() {
         given("a route matcher") {
 
             on("matching a route based on a static path") {
-                val fooRoute = RequestResponseLambdaRoute(HttpMethod.GET, "/foo", { req, resp -> ok() })
-                val barRoute = RequestResponseLambdaRoute(HttpMethod.GET, "/bar", { req, resp -> ok() })
+                val fooRoute = RouteEntry(HttpMethod.GET, "/foo")
+                val barRoute = RouteEntry(HttpMethod.GET, "/bar")
 
                 it("should match the one with the same static path and not the others") {
                     assertEquals(true, fooRoute.matches(request { path("/foo") }));
@@ -34,7 +35,7 @@ public class RouteMatchingSpecs : Spek() {
                     method(HttpMethod.POST)
                 }
 
-                val route = RequestResponseLambdaRoute(HttpMethod.POST, "/", { req, resp -> ok() })
+                val route = RouteEntry(HttpMethod.POST, "/")
 
                 it("should match only when the method matches") {
                     assertEquals(true, route.matches(postRequest));
@@ -42,123 +43,13 @@ public class RouteMatchingSpecs : Spek() {
                 }
             }
 
-            on("matching a route based on an array of methods") {
-                val postRequest = request {
-                    path("/")
-                    method(HttpMethod.POST)
-                }
-
-                val routeWithOneEntryArray = RequestResponseLambdaRoute(arrayOf(HttpMethod.POST), "/", { req, resp -> ok() })
-                val routeWithOneTwoArray = RequestResponseLambdaRoute(arrayOf(HttpMethod.POST, HttpMethod.GET), "/", { req, resp -> ok() })
-                val routeWithoutPostRequest = RequestResponseLambdaRoute(arrayOf(HttpMethod.OPTIONS), "/", { req, resp -> ok() })
-
-                it("should match only when the method matches") {
-                    assertEquals(true, routeWithOneEntryArray.matches(postRequest));
-                    assertEquals(true, routeWithOneTwoArray.matches(postRequest));
-                    assertEquals(false, routeWithoutPostRequest.matches(postRequest));
-                }
-            }
-
-            on("adding controller route as object instance") {
-                val getRoute = ControllerRoute("/", object {
-                    public get fun doGet() {
-                        ok()
-                    }
-                })
-
-                val postRoute = ControllerRoute("/", object {
-                    public post fun doPost() {
-                        ok()
-                    }
-                })
-
-                val getRequest = request {
-                    path("/")
-                    method(HttpMethod.GET)
-                }
-                val postRequest = request {
-                    path("/")
-                    method(HttpMethod.POST)
-                }
-
-                it("should match the route with the matching method only") {
-                    assertEquals(true, getRoute.matches(getRequest));
-                    assertEquals(false, getRoute.matches(postRequest));
-
-                    assertEquals(true, postRoute.matches(postRequest));
-                    assertEquals(false, postRoute.matches(getRequest));
-                }
-
-                val route963 = ControllerRoute("/d-963", object {
-                    public get fun doGet() {
-                        ok()
-                    }
-                })
-
-                val request963 = request {
-                    path("/d-963")
-                }
-
-                val request96351 = request {
-                    path("/d-963/d-51")
-                }
-
-                val request51 = request {
-                    path("/d-51")
-                }
-
-                it("should match the route with the matching path only") {
-                    assertEquals(true, route963.matches(request963));
-                    assertEquals(false, route963.matches(request51));
-                    assertEquals(false, route963.matches(request96351))
-                }
-            }
-
-            on("adding controller route with path annotations") {
-                val route1 = ControllerRoute("here", object {
-                    public get("there") fun doGet() {
-                        ok()
-                    }
-                })
-
-                @at("up")
-                class Controller {
-                    public patch("there") fun doPatch() {
-                        ok()
-                    }
-                }
-
-                val route2 = ControllerRoute("somewhere", Controller())
-
-                it("should account for the path annotations") {
-                    assertEquals(true, route1.matches(request {
-                        path("/here/there/")
-                        method(HttpMethod.GET)
-                    }));
-
-                    assertEquals(false, route1.matches(request {
-                        path("/here/not-there")
-                        method(HttpMethod.GET)
-                    }));
-
-                    assertEquals(true, route2.matches(request {
-                        path("/somewhere/up/there")
-                        method(HttpMethod.PATCH)
-                    }));
-
-                    assertEquals(false, route2.matches(request {
-                        path("/up/there")
-                        method(HttpMethod.PATCH)
-                    }));
-                }
-            }
 
             on("matching a route with path params") {
                 val request = request {
                     path("/customer/123")
                 }
-                val routeWithRegex = RequestResponseLambdaRoute(HttpMethod.GET, "/customer/{id}", { req, resp -> ok() })
-                val routeWithoutRegex = RequestResponseLambdaRoute(HttpMethod.GET, "/customer/456", { req, resp -> ok() })
+                val routeWithRegex = RouteEntry(HttpMethod.GET, "/customer/{id}")
+                val routeWithoutRegex = RouteEntry(HttpMethod.GET, "/customer/456")
 
                 it("should match the route with passed params") {
                     assertEquals(true, routeWithRegex.matches(request));;
