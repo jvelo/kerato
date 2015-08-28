@@ -3,7 +3,7 @@ package kerato.http.routes
 import kerato.http.*
 import java.lang.reflect.Method
 
-public class InvokableRouteHandler(
+public class InvokableHandler(
         val method: Method,
         val handler: Any
 ) : (Exchange) -> Exchange {

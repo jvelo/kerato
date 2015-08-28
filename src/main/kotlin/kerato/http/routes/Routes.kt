@@ -4,6 +4,7 @@ import kerato.http.HttpMethod
 import kerato.http.Request
 import kerato.http.Response
 import java.lang.reflect.Method
+import kotlin.text.Regex
 
 public interface Routes {
     fun all(): List<RouteEntry>
@@ -28,6 +29,25 @@ fun String.asPathSegment(): String = when {
     this == "" -> this
     this.endsWith("/") -> this
     else -> this.concat("/")
+}
+
+fun withPathParameters(path: String, request: Request): Request {
+    val pathParts = path.split('/').filter(String::isNotEmpty)
+    val requestParts = request.path.split('/').filter(String::isNotEmpty)
+
+    val params = pathParts.mapIndexed { index, part ->
+        if (part.matches(Regex("\\{.*\\}")) && index < requestParts.size()) {
+            Pair(part.substring(1, part.length() - 1), requestParts.get(index))
+        } else {
+            null
+        }
+    }.filterNotNull()
+
+    if (params.isEmpty()) return request
+
+    return request.with {
+        params.forEach { pathParameter(it.first, it.second) }
+    }
 }
 
 data class InvokableMethod(
@@ -84,7 +104,7 @@ public class DefaultRoutesBuilder(val path: String? = null) : RoutesBuilder {
             routes.add(RouteEntry(
                     method = it.method,
                     path = it.path,
-                    handler = InvokableRouteHandler(it.javaMethod, controller)
+                    handler = InvokableHandler(it.javaMethod, controller)
             ))
         }
 
@@ -105,7 +125,7 @@ public class DefaultRoutesBuilder(val path: String? = null) : RoutesBuilder {
      * Handler takes a request and existing response, returns a response (possibly modified)
      */
     private fun add(method: HttpMethod, path: String, handler: (request: Request, response: Response) -> Response): RoutesBuilder {
-        routes.add(RouteEntry(method, path, handler = RequestResponseLambdaRoute(handler)))
+        routes.add(RouteEntry(method, path, handler = RequestResponseLambdaHandler(handler)))
         return this
     }
 

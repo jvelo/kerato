@@ -5,7 +5,7 @@ import kerato.http.*
 /**
  * @version $Id$
  */
-public class RequestResponseLambdaRoute(val handler: (request: Request, response: Response) -> Response) : (Exchange) -> Exchange {
+public class RequestResponseLambdaHandler(val handler: (request: Request, response: Response) -> Response) : (Exchange) -> Exchange {
 
     override fun invoke(exchange: Exchange): Exchange {
 
