@@ -166,4 +166,27 @@ public class BasicTests : RestTests() {
                 `when`().
                 get("/some/3.1415926535")
     }
+
+    Test fun head_method() {
+        routes {
+            get("/foo") { request, response ->
+                response.with {
+                    body("Won't be given to HEAD")
+                    header("X-Toto", "toto")
+                }
+            }
+        }
+
+        expect().
+                body(equalTo("Won't be given to HEAD")).
+                header("X-Toto", "toto").
+                `when`().
+                get("/foo")
+
+        expect().
+                body(equalTo("")).
+                header("X-Toto", "toto").
+                `when`().
+                head("/foo")
+    }
 }
